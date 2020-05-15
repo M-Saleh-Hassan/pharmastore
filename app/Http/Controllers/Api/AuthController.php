@@ -3,81 +3,127 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\LoginResource;
+use App\Http\Resources\UserBasicInfoResource;
+use App\Models\User;
+use App\Models\UserInfo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
+
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
+        $this->middleware('auth-token', ['except' => ['login', 'registerPharmcay', 'registerStore']]);
     }
 
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
+        $this->validation($request, [
+            'username' => 'required',
+            'password' => 'required'
+        ]);
 
+        $credentials = request(['username', 'password']);
         if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            unset($credentials['username']);
+            $credentials['email'] = request('username');
+            if (! $token = auth()->attempt($credentials))
+                return $this->handleResponse(0, ['message' => 'Unauthorized']);
         }
 
-        return $this->respondWithToken($token);
+        return $this->handleResponse(1, new LoginResource(auth()->user(), $token));
     }
 
-    /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function me()
-    {
-        return response()->json(auth()->user());
-    }
-
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function logout()
     {
         auth()->logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return $this->handleResponse(1, ['message' => 'Successfully logged out']);
     }
 
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh()
+    public function registerPharmcay(Request $request)
     {
-        return $this->respondWithToken(auth()->refresh());
-    }
-
-    /**
-     * Get the token array structure.
-     *
-     * @param  string $token
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function respondWithToken($token)
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+        $this->validation($request, [
+            'name' => 'required',
+            'username' => 'required|unique:users',
+            'password' => 'required',
+            'email' => 'required|unique:users',
+            'lng' => 'required',
+            'lat' => 'required'
         ]);
+
+        $userMappedRequest = $request->only('name', 'username', 'password', 'email');
+        $userInfoMAppedRequest = $request->only('lng', 'lat');
+        $userMappedRequest['password'] = Hash::make($request->password);
+
+        DB::beginTransaction();
+
+        $user = User::create($userMappedRequest);
+        $userInfoMAppedRequest['user_id'] = $user->id;
+        $user->roles()->attach(3);
+        $userInfo = UserInfo::create($userInfoMAppedRequest);
+
+        DB::commit();
+
+        $token = auth()->attempt(request(['username', 'password']));
+        return $this->handleResponse(1, new LoginResource(auth()->user(), $token));
+
     }
+
+    public function registerStore(Request $request)
+    {
+        $this->validation($request, [
+            'name' => 'required',
+            'username' => 'required|unique:users',
+            'password' => 'required',
+            'email' => 'required|unique:users'
+        ]);
+
+        $userMappedRequest = $request->only('name', 'username', 'password', 'email');
+        $userMappedRequest['password'] = Hash::make($request->password);
+
+        DB::beginTransaction();
+
+        $user = User::create($userMappedRequest);
+        $user->roles()->attach(2);
+
+        DB::commit();
+
+        $token = auth()->attempt(request(['username', 'password']));
+        return $this->handleResponse(1, new LoginResource(auth()->user(), $token));
+
+    }
+
+    public function update(Request $request)
+    {
+        $user = auth()->user();
+        $this->validation($request, [
+            'username' => 'unique:users,username,' . $user->id,
+            'email' => 'unique:users,email,' . $user->id
+        ]);
+        $userMappedRequest = $request->only('name', 'username', 'password', 'email');
+        if($request->has('password'))
+            $userMappedRequest['password'] = Hash::make($request->password);
+
+        $user->update($userMappedRequest);
+        
+        return $this->handleResponse(1, new UserBasicInfoResource($user));
+    }
+
+    // public function refresh()
+    // {
+    //     return $this->respondWithToken(auth()->refresh());
+    // }
+
+    // protected function respondWithToken($token)
+    // {
+    //     return response()->json([
+    //         'access_token' => $token,
+    //         'token_type' => 'bearer',
+    //         'expires_in' => auth()->factory()->getTTL() * 60
+    //     ]);
+    // }
 }
