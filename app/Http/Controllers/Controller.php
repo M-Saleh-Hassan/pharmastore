@@ -21,12 +21,23 @@ class Controller extends BaseController
             return response()->json(['status'=>$status,'errors'=>$data]);
     }
 
+    public function handlePaginateResponse($status, $data)
+    {
+        if($status == 1) {
+            $result['items'] = $data->items();
+            $result['total'] = $data->total();
+            return response()->json(['status'=>$status,'data'=>$result]);
+        }
+        else
+            return response()->json(['status'=>$status,'errors'=>$data]);
+    }
+
     public function validation($request, $rule, $message = [])
     {
         $validator = Validator::make($request->all(), $rule);
         if ($validator->fails()) {
             $errors = $validator->messages()->toArray();
-            
+
             foreach ($errors as $key => $error)
                 $errorR[$key] = $error[0];
 

@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\LoginResource;
 use App\Http\Resources\UserBasicInfoResource;
 use App\Models\User;
-use App\Models\UserInfo;
+use App\Modelpublic function __construct()
+    {
+        $this->middleware('auth-token', ['except' => ['login', 'registerPharmcay', 'registerStore']]);
+    }s\UserInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -14,10 +17,7 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
 
-    public function __construct()
-    {
-        $this->middleware('auth-token', ['except' => ['login', 'registerPharmcay', 'registerStore']]);
-    }
+
 
     public function login(Request $request)
     {
@@ -109,7 +109,7 @@ class AuthController extends Controller
             $userMappedRequest['password'] = Hash::make($request->password);
 
         $user->update($userMappedRequest);
-        
+
         return $this->handleResponse(1, new UserBasicInfoResource($user));
     }
 

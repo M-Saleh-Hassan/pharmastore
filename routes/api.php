@@ -28,6 +28,13 @@ Route::group(['namespace' => 'Api'], function () {
 
     Route::group(['prefix' => 'store'], function () {
         Route::post('register', 'AuthController@registerStore');
+        Route::resource('branches', 'BranchController');
+        Route::post('branches/upload', 'BranchController@upload');
+    });
+
+    Route::group(['prefix' => 'admin'], function () {
+        Route::resource('cities', 'CityController');
+        Route::resource('areas', 'AreaController');
     });
 
 });
