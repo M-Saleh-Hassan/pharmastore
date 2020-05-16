@@ -14,7 +14,7 @@ trait ImportTrait
             $errors = $validator->messages()->toArray();
 
             foreach ($errors as $key => $error)
-                $errorR[$key] = $error[0]. ' at row ' . $rowKey+1;
+                $errorR[$key] = $error[0]. ' at row ' . ($rowKey+1);
 
             $data['status']=0;
             $data['errors']['validation']=$errorR;
@@ -27,7 +27,7 @@ trait ImportTrait
     {
         if(count($keys) != count($values)) {
             $data['status']=0;
-            $data['errors']['validation']=['error in mapToModel function line 60 in BranchesImport'];
+            $data['errors']['validation']=['error in mapToModel function line 30 in ImportTrait'];
             throw new HttpResponseException(response()->json($data, 422));
         }
 

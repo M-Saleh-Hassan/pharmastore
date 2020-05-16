@@ -28,8 +28,14 @@ Route::group(['namespace' => 'Api'], function () {
 
     Route::group(['prefix' => 'store'], function () {
         Route::post('register', 'AuthController@registerStore');
+
         Route::resource('branches', 'BranchController');
         Route::post('branches/upload', 'BranchController@upload');
+
+        Route::resource('branches.items', 'ItemController')->shallow();
+        Route::post('branches/{branch}/items/upload', 'ItemController@upload');
+
+
     });
 
     Route::group(['prefix' => 'admin'], function () {

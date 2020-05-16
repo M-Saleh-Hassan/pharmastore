@@ -76,7 +76,15 @@ class BranchController extends Controller
 
     public function upload(Request $request)
     {
-        Excel::import(new BranchesImport,request()->file('file'));
+        $this->validation($request, [
+            'file' => 'required|max:10000',
+        ]);
+        $extensions = array("xls","xlsx","xlm","xla","xlc","xlt","xlw");
+        $extension = $request->file('file')->getClientOriginalExtension();
+        if(!in_array($extension,$extensions))
+            throw new HttpResponseException(response()->json(['success'=> 0, 'errors' => ['message' => 'The file must be a file of type: xlsx, xls, xlm']], 422));
+
+        Excel::import(new BranchesImport, request()->file('file'));
         return $this->handleResponse(1, ['message' => 'Branches are imported successfully.']);
     }
 }

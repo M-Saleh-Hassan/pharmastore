@@ -26,4 +26,9 @@ class Branch extends Model
     {
         return $this->belongsTo(User::class, 'store_id');
     }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 }
