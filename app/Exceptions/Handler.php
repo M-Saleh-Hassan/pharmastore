@@ -53,7 +53,7 @@ class Handler extends ExceptionHandler
     {
         if( $exception instanceof ModelNotFoundException)
         {
-            return response()->json(['success'=> 0, 'data' => ['message' => 'Your id parameter is wrong.']], 404);
+            return response()->json(['success'=> 0, 'data' => ['message' => 'The object you are trying to access by id not found.']], 404);
         }
         return parent::render($request, $exception);
     }

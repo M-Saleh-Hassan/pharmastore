@@ -59,4 +59,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Branch::class, 'store_id');
     }
+
+    public function info()
+    {
+        return $this->hasOne(UserInfo::class, 'user_id');
+    }
 }

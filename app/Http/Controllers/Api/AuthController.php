@@ -108,8 +108,21 @@ class AuthController extends Controller
         if($request->has('password'))
             $userMappedRequest['password'] = Hash::make($request->password);
 
-        $user->update($userMappedRequest);
+        DB::beginTransaction();
 
+        $user->update($userMappedRequest);
+        $userInfoMappedRequest = $request->only('lng', 'lat', 'bio', 'delivery_details');
+
+        if(empty($userInfoMappedRequest))
+            return $this->handleResponse(1, new UserBasicInfoResource($user));
+
+        $userInfoMappedRequest['user_id'] = auth()->user()->id;
+        $userInfo = UserInfo::updateOrCreate(
+            ['user_id' => auth()->user()->id],
+            $userInfoMappedRequest
+        );
+
+        DB::commit();
         return $this->handleResponse(1, new UserBasicInfoResource($user));
     }
 

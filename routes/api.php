@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// \DB::listen(function($query) {
+//     var_dump($query->sql);
+// });
 
 Route::group(['namespace' => 'Api'], function () {
     Route::post('login', 'AuthController@login');
@@ -24,6 +26,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     Route::group(['prefix' => 'pharmacy'], function () {
         Route::post('register', 'AuthController@registerPharmcay');
+        Route::resource('cart', 'CartController');
     });
 
     Route::group(['prefix' => 'store'], function () {
@@ -34,8 +37,6 @@ Route::group(['namespace' => 'Api'], function () {
 
         Route::resource('branches.items', 'ItemController')->shallow();
         Route::post('branches/{branch}/items/upload', 'ItemController@upload');
-
-
     });
 
     Route::group(['prefix' => 'admin'], function () {
