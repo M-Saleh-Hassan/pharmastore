@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Item;
+use App\Http\Resources\CartCollection;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Rules\QunatityAvailable;
@@ -19,7 +19,7 @@ class CartController extends Controller
 
     public function index()
     {
-        //
+        return $this->handleResponse(1, new CartCollection(auth()->user()->cart));
     }
 
     // add to cart
@@ -42,13 +42,13 @@ class CartController extends Controller
         ]);
         DB::commit();
 
-        return $this->handleResponse(1, $order->items);
+        return $this->handleResponse(1, new CartCollection($order->items));
     }
 
     public function destroy(Request $request, OrderItem $item)
     {
         $order = $item->order;
         $item->delete();
-        return $this->handleResponse(1, $order->items);
+        return $this->handleResponse(1, new CartCollection($order->items));
     }
 }
