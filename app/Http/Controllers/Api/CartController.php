@@ -51,4 +51,13 @@ class CartController extends Controller
         $item->delete();
         return $this->handleResponse(1, new CartCollection($order->items));
     }
+
+    public function makeOrder()
+    {
+        $order = Order::where('user_id', auth()->user()->id)->where('is_cart', 1)->firstOrFail();
+        $order->is_cart = 0;
+        $order->save();
+
+        return $this->handleResponse(1, 'Your cart is turned into order.');
+    }
 }

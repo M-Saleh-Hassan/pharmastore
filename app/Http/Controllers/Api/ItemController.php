@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ItemSearched;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ItemCollection;
 use App\Imports\ItemsImport;
@@ -155,8 +156,11 @@ class ItemController extends Controller
                 $query->where('items.name_en', 'like', '%'.$search.'%' )
                 ->orWhere('items.name_ar', 'like', '%'.$search.'%');
             })->paginate($limit);
-            
+
         $items->count = $items->total();
+
+        if($items->count)
+            event(new ItemSearched($items, $search, auth()->user()->id));
 
         return $this->handleResponse(1, new ItemCollection($items));
     }

@@ -60,9 +60,24 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Branch::class, 'store_id');
     }
 
+    public function items()
+    {
+        return $this->hasManyThrough(
+            Item::class,
+            Branch::class,
+            'store_id',
+            'branch_id'
+        );
+    }
+
     public function info()
     {
         return $this->hasOne(UserInfo::class, 'user_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id')->where('orders.is_cart', 0);
     }
 
     public function cart()
@@ -88,5 +103,12 @@ class User extends Authenticatable implements JWTSubject
     public function history()
     {
         return $this->hasMany(SearchHistory::class);
+    }
+
+    public function isStore()
+    {
+        if($this->roles()->where('name', 'store')->first())
+            return true;
+        return false;
     }
 }

@@ -14,7 +14,7 @@ class Order extends Model
     ];
 
     protected $visible = [
-        'id', 'user_id'
+        'id', 'user_id', 'items'
     ];
 
     protected $appends = ['items'];

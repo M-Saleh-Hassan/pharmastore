@@ -10,11 +10,11 @@ class SearchHistory extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'searched_Word'
+        'user_id', 'searched_word'
     ];
 
     protected $visible = [
-        'id', 'user_id', 'searched_Word'
+        'id', 'user_id', 'searched_word'
     ];
 
     public function user()

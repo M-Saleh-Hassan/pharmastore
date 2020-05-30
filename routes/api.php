@@ -26,8 +26,17 @@ Route::group(['namespace' => 'Api'], function () {
 
     Route::group(['prefix' => 'pharmacy'], function () {
         Route::post('register', 'AuthController@registerPharmcay');
+
         Route::resource('cart', 'CartController');
+        Route::post('cart/order', 'CartController@makeOrder');
+        Route::get('orders', 'OrderController@index');
+
         Route::post('items/search', 'ItemController@search');
+
+        Route::post('stores/{store}/follow', 'FollowController@follow');
+        Route::post('stores/{store}/unfollow', 'FollowController@unfollow');
+        Route::get('stores', 'FollowController@getAllStores');
+        Route::get('stores/{store}/items', 'FollowController@getAllStoreItems');
     });
 
     Route::group(['prefix' => 'store'], function () {
