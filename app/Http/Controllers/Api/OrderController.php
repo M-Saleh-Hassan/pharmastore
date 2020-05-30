@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth-token');
+    }
+    
     public function index(Request $request)
     {
         $limit = ($request->has('limit')) ? $request->limit : 12;
