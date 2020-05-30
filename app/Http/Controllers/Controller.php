@@ -32,9 +32,9 @@ class Controller extends BaseController
             return response()->json(['status'=>$status,'errors'=>$data]);
     }
 
-    public function validation($request, $rule, $message = [])
+    public function validation($request, $rule, $messages = [])
     {
-        $validator = Validator::make($request->all(), $rule);
+        $validator = Validator::make($request->all(), $rule, $messages);
         if ($validator->fails()) {
             $errors = $validator->messages()->toArray();
 

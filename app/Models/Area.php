@@ -19,6 +19,6 @@ class Area extends Model
 
     public function city()
     {
-        return $this->belongsTo(Area::class);
+        return $this->belongsTo(City::class);
     }
 }

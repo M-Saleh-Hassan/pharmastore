@@ -27,6 +27,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::group(['prefix' => 'pharmacy'], function () {
         Route::post('register', 'AuthController@registerPharmcay');
         Route::resource('cart', 'CartController');
+        Route::post('items/search', 'ItemController@search');
     });
 
     Route::group(['prefix' => 'store'], function () {

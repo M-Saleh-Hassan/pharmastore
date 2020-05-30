@@ -74,4 +74,19 @@ class User extends Authenticatable implements JWTSubject
             'order_id'
         )->where('orders.is_cart', 1);
     }
+
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'user_follower', 'user_id', 'follower_id')->withTimestamps();
+    }
+
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'user_follower', 'follower_id', 'user_id')->withTimestamps();
+    }
+
+    public function history()
+    {
+        return $this->hasMany(SearchHistory::class);
+    }
 }
