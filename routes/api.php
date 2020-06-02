@@ -49,6 +49,9 @@ Route::group(['namespace' => 'Api'], function () {
         Route::post('branches/{branch}/items/upload', 'ItemController@upload');
 
         Route::get('orders', 'OrderController@getStoreOrders');
+
+        Route::get('cities', 'CityController@index');
+        Route::get('areas', 'AreaController@index');
     });
 
     Route::group(['prefix' => 'admin'], function () {

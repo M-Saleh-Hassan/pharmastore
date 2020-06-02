@@ -10,7 +10,8 @@ class AreaController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth-token', 'auth-role:admin']);
+        $this->middleware('auth-token');
+        $this->middleware('auth-role:admin')->except('index');
     }
 
     public function index(Request $request)
