@@ -47,6 +47,8 @@ Route::group(['namespace' => 'Api'], function () {
 
         Route::resource('branches.items', 'ItemController')->shallow();
         Route::post('branches/{branch}/items/upload', 'ItemController@upload');
+
+        Route::get('orders', 'OrderController@getStoreOrders');
     });
 
     Route::group(['prefix' => 'admin'], function () {
