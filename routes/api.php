@@ -54,6 +54,10 @@ Route::group(['namespace' => 'Api'], function () {
     Route::group(['prefix' => 'admin'], function () {
         Route::resource('cities', 'CityController');
         Route::resource('areas', 'AreaController');
+
+        Route::get('users', 'AdminController@getAllUsers');
+        Route::get('orders', 'AdminController@getAllOrders');
+        Route::get('search/history', 'AdminController@getSearchHistory');
     });
 
 });

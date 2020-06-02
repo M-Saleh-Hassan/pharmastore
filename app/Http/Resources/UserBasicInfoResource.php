@@ -6,7 +6,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserBasicInfoResource extends JsonResource
 {
-    
+
     public function toArray($request)
     {
         $returnArray = [
@@ -23,7 +23,8 @@ class UserBasicInfoResource extends JsonResource
                 'bio'              => $this->info->bio,
                 'delivery_details' => $this->info->delivery_details
             ];
-            $returnArray = array_merge($returnArray, $additionalParametersArray);          }
+            $returnArray = array_merge($returnArray, $additionalParametersArray);
+        }
         return $returnArray;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Role;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -110,5 +111,31 @@ class User extends Authenticatable implements JWTSubject
         if($this->roles()->where('name', 'store')->first())
             return true;
         return false;
+    }
+
+    public function isPharmacy()
+    {
+        if($this->roles()->where('name', 'pharmacy')->first())
+            return true;
+        return false;
+    }
+
+    public function scopeStore($query)
+    {
+        return $query->whereHas('roles', function (Builder $query) {
+            $query->where('name', 'store');
+        });
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('username', 'like', '%'.$search.'%' )->orWhere('name', 'like', '%'.$search.'%');
+    }
+
+    public function scopeNotAdmin($query)
+    {
+        return $query->whereHas('roles', function (Builder $query) {
+            $query->where('name', '<>', 'admin');
+        });
     }
 }

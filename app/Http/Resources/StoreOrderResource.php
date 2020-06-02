@@ -10,6 +10,7 @@ class StoreOrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'user' => new UserBasicInfoResource($this->user),
             'items' => OrderItemResource::collection($this->storeItems)
         ];
     }
