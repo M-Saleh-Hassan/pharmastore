@@ -21,7 +21,9 @@ class UserBasicInfoResource extends JsonResource
                 'lng'              => $this->info->lng,
                 'lat'              => $this->info->lat,
                 'bio'              => $this->info->bio,
-                'delivery_details' => $this->info->delivery_details
+                'delivery_details' => $this->info->delivery_details,
+                'mobile1'          => $this->info->mobile1,
+                'mobile2'          => $this->info->mobile2
             ];
             $returnArray = array_merge($returnArray, $additionalParametersArray);
         }

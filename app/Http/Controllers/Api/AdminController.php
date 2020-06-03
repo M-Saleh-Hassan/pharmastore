@@ -10,8 +10,11 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\SearchHistoryResult;
 use App\Models\User;
+use App\Models\UserInfo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -30,6 +33,35 @@ class AdminController extends Controller
         $users = User::search($search)->notAdmin()->paginate($limit);
 
         return $this->handlePaginateResponse(1, UserBasicInfoResource::collection($users));
+    }
+
+    public function updateUserInfo(Request $request, User $user)
+    {
+        $this->validation($request, [
+            'username' => 'unique:users,username,' . $user->id,
+            'email' => 'unique:users,email,' . $user->id
+        ]);
+
+        $userMappedRequest = $request->only('name', 'username', 'password', 'email');
+        if($request->has('password'))
+            $userMappedRequest['password'] = Hash::make($request->password);
+
+        DB::beginTransaction();
+
+        $user->update($userMappedRequest);
+        $userInfoMappedRequest = $request->only('lng', 'lat', 'bio', 'delivery_details', 'mobile1', 'mobile2');
+
+        if(empty($userInfoMappedRequest))
+            return $this->handleResponse(1, new UserBasicInfoResource($user));
+
+        $userInfoMappedRequest['user_id'] = $user->id;
+        $userInfo = UserInfo::updateOrCreate(
+            ['user_id' => $user->id],
+            $userInfoMappedRequest
+        );
+
+        DB::commit();
+        return $this->handleResponse(1, new UserBasicInfoResource($user));
     }
 
     public function getAllOrders(Request $request)

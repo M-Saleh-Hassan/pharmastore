@@ -11,6 +11,6 @@ class UserInfo extends Model
     protected $table = 'user_info';
 
     protected $fillable = [
-        'user_id','lng', 'lat', 'bio', 'delivery_details'
+        'user_id','lng', 'lat', 'bio', 'delivery_details', 'mobile1', 'mobile2'
     ];
 }
