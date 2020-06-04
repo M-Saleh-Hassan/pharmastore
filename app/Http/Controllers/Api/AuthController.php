@@ -17,6 +17,8 @@ class AuthController extends Controller
     public function __construct()
     {
         $this->middleware('auth-token', ['except' => ['login', 'registerPharmcay', 'registerStore']]);
+        $this->middleware('auth-role:admin', ['only' => ['registerPharmcay', 'registerStore']]);
+
     }
 
     public function login(Request $request)
