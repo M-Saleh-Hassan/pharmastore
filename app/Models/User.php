@@ -138,4 +138,14 @@ class User extends Authenticatable implements JWTSubject
             $query->where('name', '<>', 'admin');
         });
     }
+
+    public function scopeRole($query, $role)
+    {
+        return $query->whereHas('roles', function (Builder $query) use ($role) {
+            if($role == 'all')
+                $query->where('name', '<>', 'admin');
+            else
+                $query->where('name', $role);
+        });
+    }
 }

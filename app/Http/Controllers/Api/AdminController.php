@@ -25,12 +25,17 @@ class AdminController extends Controller
 
     public function getAllUsers(Request $request)
     {
+        $this->validation($request, [
+            'role' => 'in:pharmacy,store,all'
+        ]);
+
         $limit = ($request->has('limit')) ? $request->limit : 12;
         $orderBy = ($request->has('order_by')) ? $request->order_by : 'id';
         $search = ($request->has('search')) ? $request->search : '';
         $orderType = ($request->has('order_type')) ? $request->order_type : 'ASC';
+        $role = ($request->has('role')) ? $request->role : 'all';
 
-        $users = User::search($search)->notAdmin()->paginate($limit);
+        $users = User::search($search)->role($role)->paginate($limit);
 
         return $this->handlePaginateResponse(1, UserBasicInfoResource::collection($users));
     }
