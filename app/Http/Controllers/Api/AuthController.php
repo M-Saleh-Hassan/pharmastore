@@ -71,7 +71,7 @@ class AuthController extends Controller
         DB::commit();
 
         $token = auth()->attempt(request(['username', 'password']));
-        return $this->handleResponse(1, new LoginResource(auth()->user(), $token));
+        return $this->handleResponse(1, new LoginResource($user, $token));
 
     }
 
@@ -95,7 +95,7 @@ class AuthController extends Controller
         DB::commit();
 
         $token = auth()->attempt(request(['username', 'password']));
-        return $this->handleResponse(1, new LoginResource(auth()->user(), $token));
+        return $this->handleResponse(1, new LoginResource($user, $token));
 
     }
 
