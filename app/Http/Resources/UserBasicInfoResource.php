@@ -9,24 +9,18 @@ class UserBasicInfoResource extends JsonResource
 
     public function toArray($request)
     {
-        $returnArray = [
-            'id'       => $this->id,
-            'name'     => $this->name,
-            'username' => $this->username,
-            'email'    => $this->email,
-            'role'     => $this->roles()->first()->name
+        return [
+            'id'               => $this->id,
+            'name'             => $this->name,
+            'username'         => $this->username,
+            'email'            => $this->email,
+            'role'             => $this->roles()->first()->name,
+            'lng'              => isset($this->info) ? $this->info->lng : null,
+            'lat'              => isset($this->info) ? $this->info->lat : null,
+            'bio'              => isset($this->info) ? $this->info->bio : null,
+            'delivery_details' => isset($this->info) ? $this->info->delivery_details : null,
+            'mobile1'          => isset($this->info) ? $this->info->mobile1 : null,
+            'mobile2'          => isset($this->info) ? $this->info->mobile2 : null
         ];
-        if($this->info) {
-            $additionalParametersArray = [
-                'lng'              => $this->info->lng,
-                'lat'              => $this->info->lat,
-                'bio'              => $this->info->bio,
-                'delivery_details' => $this->info->delivery_details,
-                'mobile1'          => $this->info->mobile1,
-                'mobile2'          => $this->info->mobile2
-            ];
-            $returnArray = array_merge($returnArray, $additionalParametersArray);
-        }
-        return $returnArray;
     }
 }

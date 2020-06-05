@@ -54,11 +54,12 @@ class AuthController extends Controller
             'password' => 'required',
             'email' => 'required|unique:users',
             'lng' => 'required',
-            'lat' => 'required'
+            'lat' => 'required',
+            'mobile1' => 'required'
         ]);
 
         $userMappedRequest = $request->only('name', 'username', 'password', 'email');
-        $userInfoMAppedRequest = $request->only('lng', 'lat');
+        $userInfoMAppedRequest = $request->only('lng', 'lat', 'mobile1', 'mobile2');
         $userMappedRequest['password'] = Hash::make($request->password);
 
         DB::beginTransaction();
@@ -81,16 +82,20 @@ class AuthController extends Controller
             'name' => 'required',
             'username' => 'required|unique:users',
             'password' => 'required',
-            'email' => 'required|unique:users'
+            'email' => 'required|unique:users',
+            'mobile1' => 'required'
         ]);
 
         $userMappedRequest = $request->only('name', 'username', 'password', 'email');
+        $userInfoMAppedRequest = $request->only('bio', 'delivery_details', 'mobile1', 'mobile2');
         $userMappedRequest['password'] = Hash::make($request->password);
 
         DB::beginTransaction();
 
         $user = User::create($userMappedRequest);
+        $userInfoMAppedRequest['user_id'] = $user->id;
         $user->roles()->attach(2);
+        $userInfo = UserInfo::create($userInfoMAppedRequest);
 
         DB::commit();
 
