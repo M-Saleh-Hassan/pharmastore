@@ -22,7 +22,8 @@ class BranchController extends Controller
         $orderBy = ($request->has('order_by')) ? $request->order_by : 'id';
         $search = ($request->has('search')) ? $request->search : '';
 
-        $branches = Branch::orderBy($orderBy)->where('name', 'like', '%'.$search.'%' )->paginate($limit);
+        $branches = Branch::orderBy($orderBy)->where('store_id', auth()->user()->id)->
+        where('name', 'like', '%'.$search.'%' )->paginate($limit);
 
         return $this->handlePaginateResponse(1, $branches);
     }
