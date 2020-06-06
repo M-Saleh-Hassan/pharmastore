@@ -11,7 +11,7 @@ class CityController extends Controller
     public function __construct()
     {
         $this->middleware('auth-token');
-        $this->middleware('auth-role:admin')->except('index');
+        $this->middleware('auth-role:admin')->except('index', 'getCityAreas');
     }
 
     public function index(Request $request)
@@ -51,5 +51,13 @@ class CityController extends Controller
     {
         $city->delete();
         return $this->handleResponse(1, ['message' => 'city is deleted successfully.']);
+    }
+
+    public function getCityAreas(Request $request, City $city)
+    {
+        $limit = ($request->has('limit')) ? $request->limit : 12;
+        $areas = $city->areas()->paginate($limit);
+
+        return $this->handlePaginateResponse(1, $areas);
     }
 }

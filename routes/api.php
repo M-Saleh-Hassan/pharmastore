@@ -51,7 +51,7 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('orders', 'OrderController@getStoreOrders');
 
         Route::get('cities', 'CityController@index');
-        Route::get('areas', 'AreaController@index');
+        Route::get('cities/{city}/areas', 'CityController@getCityAreas');
     });
 
     Route::group(['prefix' => 'admin'], function () {
