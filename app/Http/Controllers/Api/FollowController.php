@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StoreResource;
+use App\Http\Resources\UserBasicInfoResource;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -29,6 +30,14 @@ class FollowController extends Controller
         })->paginate($limit);
 
         return $this->handlePaginateResponse(1, StoreResource::collection($stores));
+    }
+
+    public function getStoreInfo(User $store)
+    {
+        if(!$store->isStore())
+            throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'id passed isn\'t a store']], 401));
+
+        return $this->handleResponse(1, new UserBasicInfoResource($store));
     }
 
     public function follow(User $store)

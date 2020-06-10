@@ -12,6 +12,7 @@ use App\Models\SearchHistoryResult;
 use App\Models\User;
 use App\Models\UserInfo;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -38,6 +39,11 @@ class AdminController extends Controller
         $users = User::search($search)->role($role)->paginate($limit);
 
         return $this->handlePaginateResponse(1, UserBasicInfoResource::collection($users));
+    }
+
+    public function getUserInfo(User $user)
+    {
+        return $this->handleResponse(1, new UserBasicInfoResource($user));
     }
 
     public function updateUserInfo(Request $request, User $user)
@@ -101,6 +107,24 @@ class AdminController extends Controller
 
         $items = SearchHistoryResult::search($search)->orderBy($orderBy, $orderType)->paginate($limit);
         return $this->handlePaginateResponse(1, SearchItemResource::collection($items));
+    }
+
+    public function getStoreItems(Request $request, User $store)
+    {
+        if(!$store->isStore())
+            throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'id passed isn\'t a store']], 401));
+
+        $limit = ($request->has('limit')) ? $request->limit : 12;
+        $orderBy = ($request->has('order_by')) ? $request->order_by : 'id';
+        $search = ($request->has('search')) ? $request->search : '';
+        $orderType = ($request->has('order_type')) ? $request->order_type : 'ASC';
+
+        $items = $store->items()->orderBy($orderBy, $orderType)->where(function($query) use ($search){
+            $query->where('name_en', 'like', '%'.$search.'%' )
+            ->orWhere('name_ar', 'like', '%'.$search.'%');
+        })->paginate($limit);
+
+        return $this->handlePaginateResponse(1, $items);
     }
 
 }

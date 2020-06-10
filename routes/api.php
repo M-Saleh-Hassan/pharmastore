@@ -36,6 +36,7 @@ Route::group(['namespace' => 'Api'], function () {
         Route::post('stores/{store}/follow', 'FollowController@follow');
         Route::post('stores/{store}/unfollow', 'FollowController@unfollow');
         Route::get('stores', 'FollowController@getAllStores');
+        Route::get('stores/{store}', 'FollowController@getStoreInfo');
         Route::get('stores/{store}/items', 'FollowController@getAllStoreItems');
     });
 
@@ -59,7 +60,9 @@ Route::group(['namespace' => 'Api'], function () {
         Route::resource('areas', 'AreaController');
 
         Route::get('users', 'AdminController@getAllUsers');
+        Route::get('users/{user}', 'AdminController@getUserInfo');
         Route::put('users/{user}', 'AdminController@updateUserInfo');
+        Route::get('stores/{store}/items', 'AdminController@getStoreItems');
 
         Route::get('orders', 'AdminController@getAllOrders');
         Route::get('search/history', 'AdminController@getSearchHistory');
