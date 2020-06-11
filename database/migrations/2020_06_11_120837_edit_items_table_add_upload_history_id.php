@@ -14,7 +14,7 @@ class EditItemsTableAddUploadHistoryId extends Migration
     public function up()
     {
         Schema::table('items', function (Blueprint $table) {
-            $table->bigInteger('upload_history_id')->nulable()->after('branch_id');
+            $table->bigInteger('upload_history_id')->nullable()->after('branch_id');
         });
     }
 
