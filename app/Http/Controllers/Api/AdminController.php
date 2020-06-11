@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SearchItemResource;
 use App\Http\Resources\StoreOrderResource;
+use App\Http\Resources\StoreUploadHistoryResource;
 use App\Http\Resources\UserBasicInfoResource;
+use App\Models\Branch;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\SearchHistoryResult;
@@ -125,6 +127,29 @@ class AdminController extends Controller
         })->paginate($limit);
 
         return $this->handlePaginateResponse(1, $items);
+    }
+
+    public function getStoreUploadHistory(Request $request, User $store)
+    {
+        if(!$store->isStore())
+            throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'id passed isn\'t a store']], 401));
+
+        if($request->has('branch')) {
+            $branch = Branch::findOrFail($request->branch);
+            if($branch->store_id != $store->id)
+                throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'this branch isn\'t in this store ']], 401));
+        }
+        $limit = ($request->has('limit')) ? $request->limit : 12;
+        $orderBy = ($request->has('order_by')) ? $request->order_by : 'id';
+        $search = ($request->has('search')) ? $request->search : '';
+        $orderType = ($request->has('order_type')) ? $request->order_type : 'ASC';
+
+        if($request->has('branch'))
+            $uploadHistories = $store->uploadHistories()->where('branch_id', $request->branch)->paginate($limit);
+        else
+            $uploadHistories = $store->uploadHistories()->paginate($limit);
+
+        return $this->handlePaginateResponse(1, StoreUploadHistoryResource::collection($uploadHistories));
     }
 
 }

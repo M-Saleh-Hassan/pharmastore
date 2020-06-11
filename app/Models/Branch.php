@@ -31,4 +31,9 @@ class Branch extends Model
     {
         return $this->hasMany(Item::class);
     }
+
+    public function uploadHistories()
+    {
+        return $this->hasMany(UploadHistory::class);
+    }
 }

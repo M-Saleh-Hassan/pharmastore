@@ -34,7 +34,8 @@ class ItemResource extends JsonResource
                 'name_en' => $this->branch->area->city->name_en,
                 'name_ar' => $this->branch->area->city->name_ar
             ],
-            'distance' => $this->when(isset($this->distance), intVal($this->distance))
+            'distance' => $this->when(isset($this->distance), intVal($this->distance)),
+            'created_at' => $this->created_at
         ];
     }
 }

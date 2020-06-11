@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Branch;
 use App\Models\Item;
+use App\Models\UploadHistory;
 use App\Traits\ImportTrait;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,12 @@ class ItemsImport implements ToCollection
         unset($rows[0]);
 
         DB::beginTransaction();
+
+        $this->branch->items()->delete();
+        $uploadHistory = UploadHistory::create([
+            'user_id'   => auth()->user()->id,
+            'branch_id' => $this->branch->id
+        ]);
         foreach ($rows as $key => $row) {
             $rowData = array_slice($row->toArray(), 0, 5);
             $mappedDataToModel = $this->mapToModel($this->columnNames, $rowData);
@@ -40,6 +47,7 @@ class ItemsImport implements ToCollection
             ]);
 
             $mappedDataToModel['branch_id'] = $this->branch->id;
+            $mappedDataToModel['upload_history_id'] = $uploadHistory->id;
             $item = Item::create($mappedDataToModel);
         }
         DB::commit();

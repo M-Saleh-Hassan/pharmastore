@@ -111,6 +111,8 @@ class ItemController extends Controller
         if(!in_array($extension,$extensions))
             throw new HttpResponseException(response()->json(['success'=> 0, 'errors' => ['message' => 'The file must be a file of type: xlsx, xls, xlm']], 422));
 
+        $branch->items()->delete();
+
         Excel::import(new ItemsImport($branch), request()->file('file'));
         return $this->handleResponse(1, ['message' => 'Items are imported successfully.']);
     }

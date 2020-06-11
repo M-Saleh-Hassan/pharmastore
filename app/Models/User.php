@@ -106,6 +106,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(SearchHistory::class);
     }
 
+    public function uploadHistories()
+    {
+        return $this->hasMany(UploadHistory::class);
+    }
+
     public function isStore()
     {
         if($this->roles()->where('name', 'store')->first())
