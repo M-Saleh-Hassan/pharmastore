@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FollowController extends Controller
 {
@@ -21,14 +22,29 @@ class FollowController extends Controller
 
     public function getAllStores(Request $request)
     {
+        $this->validation($request, [
+            'order_by' => 'in:distance,id',
+            'order_type' => 'in:asc,desc'
+        ], [
+            'order_by.in' => 'order_by must have value of distance or id.',
+            'order_by.in' => 'order_by must have value of asc or desc.'
+        ]);
+
         $limit = ($request->has('limit')) ? $request->limit : 12;
         $orderBy = ($request->has('order_by')) ? $request->order_by : 'id';
         $search = ($request->has('search')) ? $request->search : '';
+        $orderType = ($request->has('order_type')) ? $request->order_type : 'asc';
 
-        $stores = User::orderBy($orderBy)->whereHas('roles', function (Builder $query) {
-            $query->where('name', 'store');
+        $lng = auth()->user()->info->lng;
+        $lat = auth()->user()->info->lat;
+
+        $stores = User::join('branches', 'branches.store_id', '=', 'users.id')
+        ->select(DB::raw('users.*, ( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
+        ->orderBy($orderBy, $orderType)
+        ->whereHas('roles', function (Builder $query) {
+            $query->where('roles.name', 'store');
         })->where(function($query) use ($search){
-            $query->where('name', 'like', '%'.$search.'%' );
+            $query->where('users.name', 'like', '%'.$search.'%' );
         })->paginate($limit);
 
         return $this->handlePaginateResponse(1, StoreResource::collection($stores));

@@ -20,7 +20,8 @@ class StoreResource extends JsonResource
             'username' => $this->username,
             'bio' => (isset($this->info)) ? $this->info->bio : null,
             'delivery_details' => (isset($this->info)) ? $this->info->delivery_details : null,
-            'branches' => BranchResource::collection($this->branches)
+            'branches' => BranchResource::collection($this->branches),
+            'distance' => $this->when(isset($this->distance), intVal($this->distance)),
         ];
     }
 }
