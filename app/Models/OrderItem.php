@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class OrderItem extends Model
 {
@@ -14,7 +15,7 @@ class OrderItem extends Model
     ];
 
     protected $visible = [
-        'id', 'order_id', 'item_id', 'quantity'
+        'id', 'order_id', 'item_id', 'quantity', 'store_id'
     ];
 
     public function order()
@@ -25,5 +26,12 @@ class OrderItem extends Model
     public function item()
     {
         return $this->belongsTo(Item::class, 'item_id');
+    }
+
+    public function getStoreIdAttribute()
+    {
+        if(empty($this->item))
+            throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'order_item of '.$this->id.' not found.']], 401));
+        return $this->item->branch->store->id;
     }
 }

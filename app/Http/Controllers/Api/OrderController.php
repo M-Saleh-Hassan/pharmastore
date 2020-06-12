@@ -25,7 +25,7 @@ class OrderController extends Controller
         $search = ($request->has('search')) ? $request->search : '';
         $orderType = ($request->has('order_type')) ? $request->order_type : 'ASC';
 
-        return $this->handlePaginateResponse(1, OrderResource::collection(auth()->user()->orders()->paginate($limit)));
+        return $this->handlePaginateResponse(1, OrderResource::collection(auth()->user()->orders()->latest()->paginate($limit)));
     }
 
     public function getStoreOrders(Request $request)
@@ -47,7 +47,7 @@ class OrderController extends Controller
         foreach ($orders as $order) {
             $order->storeItems = $order->items()->whereIn('item_id', $itemsIds)->get();
         }
-        
+
         return $this->handlePaginateResponse(1, StoreOrderResource::collection($orders));
     }
 }
