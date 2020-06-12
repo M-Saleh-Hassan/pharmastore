@@ -116,12 +116,21 @@ class AdminController extends Controller
         if(!$store->isStore())
             throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'id passed isn\'t a store']], 401));
 
+        if($request->has('branch')) {
+            $branch = Branch::findOrFail($request->branch);
+            if($branch->store_id != $store->id)
+                throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'this branch isn\'t in this store ']], 401));
+        }
+
         $limit = ($request->has('limit')) ? $request->limit : 12;
         $orderBy = ($request->has('order_by')) ? $request->order_by : 'id';
         $search = ($request->has('search')) ? $request->search : '';
         $orderType = ($request->has('order_type')) ? $request->order_type : 'ASC';
 
-        $items = $store->items()->orderBy($orderBy, $orderType)->where(function($query) use ($search){
+        $items = $store->items();
+        if($request->has('branch'))
+            $items = $items->where('branch_id', $request->branch);
+        $items = $items->orderBy($orderBy, $orderType)->where(function($query) use ($search){
             $query->where('name_en', 'like', '%'.$search.'%' )
             ->orWhere('name_ar', 'like', '%'.$search.'%');
         })->paginate($limit);
