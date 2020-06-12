@@ -27,7 +27,7 @@ class FollowController extends Controller
             'order_type' => 'in:asc,desc'
         ], [
             'order_by.in' => 'order_by must have value of distance or id.',
-            'order_by.in' => 'order_by must have value of asc or desc.'
+            'order_type.in' => 'order_by must have value of asc or desc.'
         ]);
 
         $limit = ($request->has('limit')) ? $request->limit : 12;
