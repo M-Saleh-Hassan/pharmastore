@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StoreResource;
+use App\Http\Resources\StoreWithFollowingForPharmacyResource;
 use App\Http\Resources\UserBasicInfoResource;
 use App\Models\Branch;
 use App\Models\User;
@@ -38,7 +39,7 @@ class FollowController extends Controller
         if(!$store->isStore())
             throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'id passed isn\'t a store']], 401));
 
-        return $this->handleResponse(1, new UserBasicInfoResource($store));
+        return $this->handleResponse(1, new StoreWithFollowingForPharmacyResource($store));
     }
 
     public function follow(User $store)
