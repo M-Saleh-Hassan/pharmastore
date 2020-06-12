@@ -15,7 +15,7 @@ class OrderController extends Controller
     public function __construct()
     {
         $this->middleware('auth-token');
-        $this->middleware('auth-role:store')->except('index');
+        $this->middleware('auth-role:store')->only('getStoreOrders');
     }
 
     public function index(Request $request)
@@ -25,7 +25,12 @@ class OrderController extends Controller
         $search = ($request->has('search')) ? $request->search : '';
         $orderType = ($request->has('order_type')) ? $request->order_type : 'ASC';
 
-        return $this->handlePaginateResponse(1, OrderResource::collection(auth()->user()->orders()->latest()->paginate($limit)));
+        return $this->handlePaginateResponse(1, OrderResource::collection(auth()->user()->orders()->notCancelled()->latest()->paginate($limit)));
+    }
+
+    public function show(Request $request, Order $order)
+    {
+        return $this->handleResponse(1, new OrderResource($order));
     }
 
     public function getStoreOrders(Request $request)

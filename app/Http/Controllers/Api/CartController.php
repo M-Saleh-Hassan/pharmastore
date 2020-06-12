@@ -60,4 +60,14 @@ class CartController extends Controller
 
         return $this->handleResponse(1, 'Your cart is turned into order.');
     }
+
+    public function cancelOrder()
+    {
+        $order = Order::where('user_id', auth()->user()->id)->where('is_cart', 1)->firstOrFail();
+        $order->is_cart = 0;
+        $order->is_cancelled = 1;
+        $order->save();
+
+        return $this->handleResponse(1, 'Your cart order is cancelled.');
+    }
 }

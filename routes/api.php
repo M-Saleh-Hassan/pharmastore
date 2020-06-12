@@ -29,7 +29,10 @@ Route::group(['namespace' => 'Api'], function () {
 
         Route::resource('cart', 'CartController');
         Route::post('cart/order', 'CartController@makeOrder');
+        Route::post('cart/cancel', 'CartController@cancelOrder');
+
         Route::get('orders', 'OrderController@index');
+        Route::get('orders/{order}', 'OrderController@show');
 
         Route::post('items/search', 'ItemController@search');
 
@@ -67,6 +70,8 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('stores/{store}/upload-history', 'AdminController@getStoreUploadHistory');
 
         Route::get('orders', 'AdminController@getAllOrders');
+        Route::get('orders/{order}', 'OrderController@show');
+        
         Route::get('search/history', 'AdminController@getSearchHistory');
     });
 

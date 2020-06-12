@@ -29,7 +29,8 @@ class StoreOrderResource extends JsonResource
         return [
             'id' => $this->id,
             'user' => new UserBasicInfoResource($this->user),
-            'items' => OrderStoreItemResource::collection($filteredItemsPerStore)
+            'items' => OrderStoreItemResource::collection($filteredItemsPerStore),
+            'cancelled' => $this->is_cancelled
         ];
     }
 }

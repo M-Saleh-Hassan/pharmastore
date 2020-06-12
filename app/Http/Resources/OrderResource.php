@@ -15,27 +15,30 @@ class OrderResource extends JsonResource
      */
     public function toArray($request)
     {
-        $items = $this->items;
-        $storeIds = [];
         $filteredItemsPerStore = [];
-        foreach ($items as $item)
-            if(!in_array($item->store_id, $storeIds))
-                $storeIds[] = $item->store_id;
+        if(!empty($request->order)) {
+            $items = $this->items;
+            $storeIds = [];
+            foreach ($items as $item)
+                if(!in_array($item->store_id, $storeIds))
+                    $storeIds[] = $item->store_id;
 
-        foreach ($storeIds as $storeId) {
-            $storeName = User::find($storeId)->name;
-            $filteredCollection = app()->make('stdClass');
-            $filteredCollection->store_id = $storeId;
-            $filteredCollection->store_name = $storeName;
-            $filteredCollection->items = $items->filter(function ($item, $key) use ($storeId) {
-                return $item->store_id ==  $storeId;
-            });
-            $filteredItemsPerStore[] = $filteredCollection;
+            foreach ($storeIds as $storeId) {
+                $storeName = User::find($storeId)->name;
+                $filteredCollection = app()->make('stdClass');
+                $filteredCollection->store_id = $storeId;
+                $filteredCollection->store_name = $storeName;
+                $filteredCollection->items = $items->filter(function ($item, $key) use ($storeId) {
+                    return $item->store_id ==  $storeId;
+                });
+                $filteredItemsPerStore[] = $filteredCollection;
+            }
         }
         return [
             'order_id' => $this->id,
-            'items' => OrderStoreItemResource::collection($filteredItemsPerStore),
-            'created_at' => $this->created_at
+            'items' => $this->when(!empty($request->order), OrderStoreItemResource::collection($filteredItemsPerStore)),
+            'created_at' => $this->created_at,
+            'is_cancelled' => $this->is_cancelled
         ];
     }
 }
