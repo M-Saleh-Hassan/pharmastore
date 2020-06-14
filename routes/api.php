@@ -71,7 +71,7 @@ Route::group(['namespace' => 'Api'], function () {
 
         Route::get('orders', 'AdminController@getAllOrders');
         Route::get('orders/{order}', 'OrderController@show');
-        
+
         Route::get('search/history', 'AdminController@getSearchHistory');
     });
 

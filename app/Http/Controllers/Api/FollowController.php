@@ -39,13 +39,13 @@ class FollowController extends Controller
         $lat = auth()->user()->info->lat;
 
         $stores = User::join('branches', 'branches.store_id', '=', 'users.id')
-        ->select(DB::raw('users.*, ( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
+        ->select(DB::raw('users.id, MIN( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
         ->orderBy($orderBy, $orderType)
         ->whereHas('roles', function (Builder $query) {
             $query->where('roles.name', 'store');
         })->where(function($query) use ($search){
             $query->where('users.name', 'like', '%'.$search.'%' );
-        })->paginate($limit);
+        })->groupBy(['users.id'])->paginate($limit);
 
         return $this->handlePaginateResponse(1, StoreResource::collection($stores));
     }
