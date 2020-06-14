@@ -38,6 +38,7 @@ Route::group(['namespace' => 'Api'], function () {
 
         Route::post('stores/{store}/follow', 'FollowController@follow');
         Route::post('stores/{store}/unfollow', 'FollowController@unfollow');
+        Route::get('stores/follow/items', 'FollowController@getFollowingStoresItems');
         Route::get('stores', 'FollowController@getAllStores');
         Route::get('stores/{store}', 'FollowController@getStoreInfo');
         Route::get('stores/{store}/items', 'FollowController@getAllStoreItems');

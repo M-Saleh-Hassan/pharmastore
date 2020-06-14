@@ -7,6 +7,7 @@ use App\Http\Resources\StoreResource;
 use App\Http\Resources\StoreWithFollowingForPharmacyResource;
 use App\Http\Resources\UserBasicInfoResource;
 use App\Models\Branch;
+use App\Models\Item;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -103,6 +104,25 @@ class FollowController extends Controller
             $query->where('name_en', 'like', '%'.$search.'%' )
             ->orWhere('name_ar', 'like', '%'.$search.'%');
         })->paginate($limit);
+
+        return $this->handlePaginateResponse(1, $items);
+    }
+
+    public function getFollowingStoresItems(Request $request)
+    {
+        $limit = ($request->has('limit')) ? $request->limit : 12;
+        $search = ($request->has('search')) ? $request->search : '';
+
+        $followingStoresIds = auth()->user()->following()->pluck('users.id');
+        $items = Item::join('branches', 'items.branch_id', '=', 'branches.id')
+        ->join('users', 'users.id', '=', 'branches.store_id')
+        ->select('items.*')
+        ->where(function($query) use ($search){
+            $query->where('items.name_en', 'like', '%'.$search.'%' )
+            ->orWhere('items.name_ar', 'like', '%'.$search.'%');
+        })->whereIn('users.id', $followingStoresIds)
+        ->latest()
+        ->paginate($limit);
 
         return $this->handlePaginateResponse(1, $items);
     }
