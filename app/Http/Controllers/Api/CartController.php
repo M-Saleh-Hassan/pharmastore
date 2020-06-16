@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CartCollection;
+use App\Http\Resources\CartResource;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Rules\QunatityAvailable;
