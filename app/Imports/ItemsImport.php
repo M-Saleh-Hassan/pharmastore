@@ -41,9 +41,9 @@ class ItemsImport implements ToCollection
             $this->validation($mappedDataToModel, $key, [
                 'name_en' => 'required',
                 'name_ar' => 'required',
-                'quantity' => 'required|int|min:0',
+                'quantity' => 'required|min:0',
                 'basic_price' => 'required',
-                'discount' => 'required|int|min:0'
+                'discount' => 'required|min:0'
             ]);
 
             $mappedDataToModel['branch_id'] = $this->branch->id;

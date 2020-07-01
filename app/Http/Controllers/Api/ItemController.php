@@ -49,9 +49,9 @@ class ItemController extends Controller
         $this->validation($request, [
             'name_en' => 'required',
             'name_ar' => 'required',
-            'quantity' => 'required|int|min:0',
+            'quantity' => 'required|min:0',
             'basic_price' => 'required',
-            'discount' => 'required|int|min:0'
+            'discount' => 'required|min:0'
         ]);
 
         $itemMappedRequest = $request->all();
@@ -81,8 +81,8 @@ class ItemController extends Controller
                 throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'Unauthorized to perform this operation']], 401));
 
         $this->validation($request, [
-            'quantity' => 'required|int|min:0',
-            'discount' => 'required|int|min:0'
+            'quantity' => 'required|min:0',
+            'discount' => 'required|min:0'
         ]);
 
         $item->update($request->all());
