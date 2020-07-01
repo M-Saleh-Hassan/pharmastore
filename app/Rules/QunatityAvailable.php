@@ -27,7 +27,8 @@ class QunatityAvailable implements Rule
      */
     public function passes($attribute, $value)
     {
-        return ($value <= $this->quantity);
+        return 1;
+        // return ($value <= $this->quantity);
     }
 
     /**
