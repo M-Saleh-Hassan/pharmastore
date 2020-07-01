@@ -32,7 +32,9 @@ class ItemResource extends JsonResource
             'city' => [
                 'id' => $this->branch->area->city->id,
                 'name_en' => $this->branch->area->city->name_en,
-                'name_ar' => $this->branch->area->city->name_ar
+                'name_ar' => $this->branch->area->city->name_ar,
+                'area_name_en' => $this->branch->area->name_en,
+                'area_name_ar' => $this->branch->area->name_ar
             ],
             'distance' => $this->when(isset($this->distance), intVal($this->distance)),
             'created_at' => $this->created_at
