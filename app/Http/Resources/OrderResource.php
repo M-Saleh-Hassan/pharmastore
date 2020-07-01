@@ -17,7 +17,7 @@ class OrderResource extends JsonResource
     {
         $filteredItemsPerStore = [];
         if(!empty($request->order)) {
-            $items = $this->items;
+            $items = $this->items()->withTrashed()->get();
             $storeIds = [];
             foreach ($items as $item)
                 if(!in_array($item->store_id, $storeIds))

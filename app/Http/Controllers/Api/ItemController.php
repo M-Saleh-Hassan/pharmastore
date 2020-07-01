@@ -111,6 +111,14 @@ class ItemController extends Controller
         if(!in_array($extension,$extensions))
             throw new HttpResponseException(response()->json(['success'=> 0, 'errors' => ['message' => 'The file must be a file of type: xlsx, xls, xlm']], 422));
 
+        $currentItems = $branch->items;
+        foreach ($currentItems as $item) {
+            $orderItems = $item->orderItems;
+            foreach ($orderItems as $orderItem) {
+                if($orderItem->order->is_cart)
+                    $orderItem->delete();
+            }
+        }
         $branch->items()->delete();
 
         Excel::import(new ItemsImport($branch), request()->file('file'));

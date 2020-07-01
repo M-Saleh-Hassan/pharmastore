@@ -26,4 +26,9 @@ class Item extends Model
     {
         return $this->belongsTo(UploadHistory::class, 'upload_history_id');
     }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'item_id');
+    }
 }

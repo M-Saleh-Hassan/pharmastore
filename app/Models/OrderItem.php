@@ -30,8 +30,8 @@ class OrderItem extends Model
 
     public function getStoreIdAttribute()
     {
-        if(empty($this->item))
+        if(empty($this->item()->withTrashed()->first()))
             throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'order_item of '.$this->id.' not found.']], 401));
-        return $this->item->branch->store->id;
+        return $this->item()->withTrashed()->first()->branch->store->id;
     }
 }
