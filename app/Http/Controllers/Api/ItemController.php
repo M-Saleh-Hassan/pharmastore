@@ -151,7 +151,11 @@ class ItemController extends Controller
                         (
                             ($request->order_by == 'city') ? 'cities.name_en' :
                             (
-                                ($request->order_by == 'area') ? 'areas.name_en' : 'items.'.$request->order_by
+                                ($request->order_by == 'area') ? 'areas.name_en' :
+                                (
+                                    ($request->has('order_by')) ? 'items.'.$request->order_by : 'items.id'
+
+                                )
                             )
                         )
                     );

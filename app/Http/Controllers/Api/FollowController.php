@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ItemResource;
 use App\Http\Resources\StoreResource;
 use App\Http\Resources\StoreWithFollowingForPharmacyResource;
 use App\Http\Resources\UserBasicInfoResource;
@@ -110,20 +111,53 @@ class FollowController extends Controller
 
     public function getFollowingStoresItems(Request $request)
     {
+        $this->validation($request, [
+            'order_by' => 'in:distance,store,city,area,name_en,name_ar,quantity,basic_price,discount,id',
+            'order_type' => 'in:asc,desc'
+        ], [
+            'order_by.in' => 'order_by must have value of distance or store or city or area or name_en or name_ar or quantity or basic_price or discount or id.',
+            'order_by.in' => 'order_by must have value of asc or desc.'
+        ]);
+
         $limit = ($request->has('limit')) ? $request->limit : 12;
         $search = ($request->has('search')) ? $request->search : '';
+        $orderType = ($request->has('order_type')) ? $request->order_type : 'ASC';
+        $orderBy =  ($request->order_by == 'distance') ? 'distance' :
+                    (
+                        ($request->order_by == 'store') ? 'users.name' :
+                        (
+                            ($request->order_by == 'city') ? 'cities.name_en' :
+                            (
+                                ($request->order_by == 'area') ? 'areas.name_en' :
+                                (
+                                    ($request->has('order_by')) ? 'items.'.$request->order_by : 'items.id'
+
+                                )
+                            )
+                        )
+                    );
+
+        $lng = auth()->user()->info->lng;
+        $lat = auth()->user()->info->lat;
 
         $followingStoresIds = auth()->user()->following()->pluck('users.id');
-        $items = Item::join('branches', 'items.branch_id', '=', 'branches.id')
-        ->join('users', 'users.id', '=', 'branches.store_id')
-        ->select('items.*')
-        ->where(function($query) use ($search){
-            $query->where('items.name_en', 'like', '%'.$search.'%' )
-            ->orWhere('items.name_ar', 'like', '%'.$search.'%');
-        })->whereIn('users.id', $followingStoresIds)
-        ->latest()
-        ->paginate($limit);
+        do {
+            $items = Item::join('branches', 'items.branch_id', '=', 'branches.id')
+                ->join('users', 'users.id', '=', 'branches.store_id')
+                ->join('areas', 'areas.id', '=', 'branches.area_id')
+                ->join('cities', 'cities.id', '=', 'areas.city_id')
+                ->select(DB::raw('items.*, ( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
+                ->orderBy($orderBy, $orderType)
+                ->where(function($query) use ($search){
+                    $query->where('items.name_en', 'like', '%'.$search.'%' )
+                    ->orWhere('items.name_ar', 'like', '%'.$search.'%');
+                })->whereIn('users.id', $followingStoresIds)
+                ->paginate($limit);
+            $search = substr($search, 0, -1);
+            if($items->total() > 0)
+                break;
+        } while (!empty($search));
 
-        return $this->handlePaginateResponse(1, $items);
+        return $this->handlePaginateResponse(1, ItemResource::collection($items));
     }
 }
