@@ -155,17 +155,21 @@ class ItemController extends Controller
                             )
                         )
                     );
-
-        $items = Item::join('branches', 'items.branch_id', '=', 'branches.id')
-            ->join('users', 'users.id', '=', 'branches.store_id')
-            ->join('areas', 'areas.id', '=', 'branches.area_id')
-            ->join('cities', 'cities.id', '=', 'areas.city_id')
-            ->select(DB::raw('items.*, ( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
-            ->orderBy($orderBy, $orderType)
-            ->where(function($query) use ($search){
-                $query->where('items.name_en', 'like', '%'.$search.'%' )
-                ->orWhere('items.name_ar', 'like', '%'.$search.'%');
-            })->paginate($limit);
+        do {
+            $items = Item::join('branches', 'items.branch_id', '=', 'branches.id')
+                ->join('users', 'users.id', '=', 'branches.store_id')
+                ->join('areas', 'areas.id', '=', 'branches.area_id')
+                ->join('cities', 'cities.id', '=', 'areas.city_id')
+                ->select(DB::raw('items.*, ( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
+                ->orderBy($orderBy, $orderType)
+                ->where(function($query) use ($search){
+                    $query->where('items.name_en', 'like', '%'.$search.'%' )
+                    ->orWhere('items.name_ar', 'like', '%'.$search.'%');
+                })->paginate($limit);
+            $search = substr($search, 0, -1);
+            if($items->total() > 0)
+                break;
+        } while (!empty($search));
 
         $items->count = $items->total();
 
