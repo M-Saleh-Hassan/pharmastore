@@ -133,7 +133,9 @@ class ItemController extends Controller
         $this->validation($request, [
             'search' => 'required',
             'order_by' => 'in:distance,store,city,area,name_en,name_ar,quantity,basic_price,discount,id',
-            'order_type' => 'in:asc,desc'
+            'order_type' => 'in:asc,desc',
+            'city_id' => 'exists:cities,id',
+            'area_id' => 'exists:areas,id',
         ], [
             'order_by.in' => 'order_by must have value of distance or store or city or area or name_en or name_ar or quantity or basic_price or discount or id.',
             'order_by.in' => 'order_by must have value of asc or desc.'
@@ -169,7 +171,13 @@ class ItemController extends Controller
                 ->where(function($query) use ($search){
                     $query->where('items.name_en', 'like', '%'.$search.'%' )
                     ->orWhere('items.name_ar', 'like', '%'.$search.'%');
-                })->paginate($limit);
+                });
+            if($request->has('city_id'))
+                $items = $items->where('cities.id', $request->city_id);
+            if($request->has('area_id'))
+                $items = $items->where('areas.id', $request->area_id);
+            $items = $items->paginate($limit);
+            
             $search = substr($search, 0, -1);
             if($items->total() > 0)
                 break;
