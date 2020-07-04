@@ -14,6 +14,8 @@ class StoreResource extends JsonResource
      */
     public function toArray($request)
     {
+        $followingStoresIds = auth()->user()->following()->pluck('users.id')->toArray();
+        $isFollowed = in_array($this->id, $followingStoresIds) ? 1 : 0;
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -22,6 +24,7 @@ class StoreResource extends JsonResource
             'delivery_details' => (isset($this->info)) ? $this->info->delivery_details : null,
             'branches' => BranchResource::collection($this->branches),
             'distance' => $this->when(isset($this->distance), intVal($this->distance)),
+            'is_followed' => $isFollowed
         ];
     }
 }
