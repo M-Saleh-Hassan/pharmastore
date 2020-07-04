@@ -26,7 +26,9 @@ class FollowController extends Controller
     {
         $this->validation($request, [
             'order_by' => 'in:distance,id',
-            'order_type' => 'in:asc,desc'
+            'order_type' => 'in:asc,desc',
+            'city_id' => 'exists:cities,id',
+            'area_id' => 'exists:areas,id'
         ], [
             'order_by.in' => 'order_by must have value of distance or id.',
             'order_type.in' => 'order_by must have value of asc or desc.'
@@ -41,13 +43,20 @@ class FollowController extends Controller
         $lat = auth()->user()->info->lat;
 
         $stores = User::join('branches', 'branches.store_id', '=', 'users.id')
-        ->select(DB::raw('users.id, users.name, users.username, MIN( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
-        ->orderBy($orderBy, $orderType)
-        ->whereHas('roles', function (Builder $query) {
-            $query->where('roles.name', 'store');
-        })->where(function($query) use ($search){
-            $query->where('users.name', 'like', '%'.$search.'%' );
-        })->groupBy(['users.id', 'users.name', 'users.username'])->paginate($limit);
+            ->join('areas', 'areas.id', '=', 'branches.area_id')
+            ->join('cities', 'cities.id', '=', 'areas.city_id')
+            ->select(DB::raw('users.id, users.name, users.username, MIN( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
+            ->orderBy($orderBy, $orderType)
+            ->whereHas('roles', function (Builder $query) {
+                $query->where('roles.name', 'store');
+            })->where(function($query) use ($search){
+                $query->where('users.name', 'like', '%'.$search.'%' );
+            });
+        if($request->has('city_id'))
+            $stores = $stores->where('cities.id', $request->city_id);
+        if($request->has('area_id'))
+            $stores = $stores->where('areas.id', $request->area_id);
+        $stores = $stores->groupBy(['users.id', 'users.name', 'users.username'])->paginate($limit);
 
         return $this->handlePaginateResponse(1, StoreResource::collection($stores));
     }
@@ -160,7 +169,7 @@ class FollowController extends Controller
             if($request->has('area_id'))
                 $items = $items->where('areas.id', $request->area_id);
             $items = $items->paginate($limit);
-            
+
             $search = substr($search, 0, -1);
             if($items->total() > 0)
                 break;
