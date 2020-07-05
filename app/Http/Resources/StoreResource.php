@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class StoreResource extends JsonResource
@@ -16,13 +17,22 @@ class StoreResource extends JsonResource
     {
         $followingStoresIds = auth()->user()->following()->pluck('users.id')->toArray();
         $isFollowed = in_array($this->id, $followingStoresIds) ? 1 : 0;
+        $branches = $this->branches();
+        if($request->has('city_id'))
+            $branches = $branches->whereHas('area', function (Builder $query) use ($request) {
+                $query->where('city_id', $request->city_id);
+            });
+        if($request->has('area_id'))
+            $branches = $branches->where('area_id', $request->area_id);
+        $branches = $branches->get();
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'username' => $this->username,
             'bio' => (isset($this->info)) ? $this->info->bio : null,
             'delivery_details' => (isset($this->info)) ? $this->info->delivery_details : null,
-            'branches' => BranchResource::collection($this->branches),
+            'branches' => BranchResource::collection($branches),
             'distance' => $this->when(isset($this->distance), intVal($this->distance)),
             'is_followed' => $isFollowed
         ];
