@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\PharmacySearchItemResource;
+use App\Http\Resources\Admin\StoreOrderResource as AdminStoreOrderResource;
 use App\Http\Resources\SearchItemResource;
 use App\Http\Resources\StoreOrderResource;
 use App\Http\Resources\StoreUploadHistoryResource;
@@ -10,6 +12,7 @@ use App\Http\Resources\UserBasicInfoResource;
 use App\Models\Branch;
 use App\Models\Item;
 use App\Models\Order;
+use App\Models\SearchHistory;
 use App\Models\SearchHistoryResult;
 use App\Models\User;
 use App\Models\UserInfo;
@@ -159,6 +162,41 @@ class AdminController extends Controller
             $uploadHistories = $store->uploadHistories()->paginate($limit);
 
         return $this->handlePaginateResponse(1, StoreUploadHistoryResource::collection($uploadHistories));
+    }
+
+    public function getPharmacyOrders(Request $request, User $pharmacy)
+    {
+        $limit = ($request->has('limit')) ? $request->limit : 12;
+
+        // $itemsIds =  Item::where(function($query) use ($search){
+        //     $query->where('name_en', 'like', '%'.$search.'%' )
+        //     ->orWhere('name_ar', 'like', '%'.$search.'%');
+        // })->pluck('items.id');
+
+        $orders = Order::order()->user($pharmacy->id)->paginate($limit);
+        // ->whereHas('items', function (Builder $query) use ($itemsIds) {
+        //     $query->whereIn('item_id', $itemsIds);
+        // })
+
+
+        foreach ($orders as $order) {
+            // $order->storeItems = $order->items()->whereIn('item_id', $itemsIds)->get();
+            $order->storeItems = $order->items;
+        }
+
+        return $this->handlePaginateResponse(1, AdminStoreOrderResource::collection($orders));
+    }
+
+    public function getPharmacyHistory(Request $request, User $pharmacy)
+    {
+        $limit = ($request->has('limit')) ? $request->limit : 12;
+        // $orderBy = ($request->has('order_by')) ? $request->order_by : 'id';
+        // $search = ($request->has('search')) ? $request->search : '';
+        // $orderType = ($request->has('order_type')) ? $request->order_type : 'DESC';
+
+        $searchHistory = SearchHistory::where('user_id', $pharmacy->id)->paginate($limit);
+
+        return $this->handlePaginateResponse(1, PharmacySearchItemResource::collection($searchHistory));
     }
 
 }

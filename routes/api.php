@@ -70,6 +70,9 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('stores/{store}/items', 'AdminController@getStoreItems');
         Route::get('stores/{store}/upload-history', 'AdminController@getStoreUploadHistory');
 
+        Route::get('pharmacies/{pharmacy}/orders', 'AdminController@getPharmacyOrders');
+        Route::get('pharmacies/{pharmacy}/history', 'AdminController@getPharmacyHistory');
+
         Route::get('orders', 'AdminController@getAllOrders');
         Route::get('orders/{order}', 'OrderController@show');
 
