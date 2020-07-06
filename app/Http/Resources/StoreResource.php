@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Pharmacy\BranchResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -33,7 +34,6 @@ class StoreResource extends JsonResource
             'bio' => (isset($this->info)) ? $this->info->bio : null,
             'delivery_details' => (isset($this->info)) ? $this->info->delivery_details : null,
             'branches' => BranchResource::collection($branches),
-            'distance' => $this->when(isset($this->distance), intVal($this->distance)),
             'is_followed' => $isFollowed
         ];
     }
