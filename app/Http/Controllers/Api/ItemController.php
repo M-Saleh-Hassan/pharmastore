@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Events\ItemSearched;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ItemCollection;
+use App\Http\Resources\ItemResource;
 use App\Imports\ItemsImport;
 use App\Models\Branch;
 use App\Models\Item;
+use App\Models\SearchHistoryResult;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +21,8 @@ class ItemController extends Controller
     public function __construct()
     {
         $this->middleware('auth-token');
-        $this->middleware('auth-role:store')->except('search');
-        $this->middleware('auth-role:pharmacy')->only('search');
+        $this->middleware('auth-role:store')->except(['search', 'getTop100']);
+        $this->middleware('auth-role:pharmacy')->only(['search', 'getTop100']);
     }
 
     public function index(Request $request, Branch $branch)
@@ -177,7 +180,7 @@ class ItemController extends Controller
             if($request->has('area_id'))
                 $items = $items->where('areas.id', $request->area_id);
             $items = $items->paginate($limit);
-            
+
             $search = substr($search, 0, -1);
             if($items->total() > 0)
                 break;
@@ -189,5 +192,36 @@ class ItemController extends Controller
             event(new ItemSearched($items, $search, auth()->user()->id));
 
         return $this->handleResponse(1, new ItemCollection($items));
+    }
+
+    public function getTop100(Request $request)
+    {
+        $this->validation($request, [
+            'order_by' => 'required|in:search,discount',
+            'order_type' => 'in:asc,desc'
+        ], [
+            'order_by.in' => 'order_by must have value of search or discount.',
+            'order_by.in' => 'order_by must have value of asc or desc.'
+        ]);
+
+        $orderType = ($request->has('order_type')) ? $request->order_type : 'DESC';
+        $items = [];
+
+        if($request->order_by == 'discount')
+            $items = Item::orderBy('discount', $orderType)->limit(100)->get();
+
+        if($request->order_by == 'search') {
+            $history = SearchHistoryResult::select(DB::raw("COUNT('item_id') AS item_count, item_id"))
+                ->has('item')
+                ->groupBy('item_id')
+                ->orderByDesc('item_count')
+                ->limit(100)
+                ->pluck('item_id');
+            foreach ($history as $itemId) {
+                $items[] = Item::find($itemId);
+            }
+        }
+
+        return $this->handleResponse(1, ItemResource::collection($items));
     }
 }
