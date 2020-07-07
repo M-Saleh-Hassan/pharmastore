@@ -56,6 +56,10 @@ class FollowController extends Controller
             $stores = $stores->where('cities.id', $request->city_id);
         if($request->has('area_id'))
             $stores = $stores->where('areas.id', $request->area_id);
+        if($request->has('is_followed') && $request->is_followed == 1) {
+            $followingStoresIds = auth()->user()->following()->pluck('users.id')->toArray();
+            $stores = $stores->whereIn('users.id', $followingStoresIds);
+        }
         $stores = $stores->groupBy(['users.id', 'users.name', 'users.username'])->paginate($limit);
 
         return $this->handlePaginateResponse(1, StoreResource::collection($stores));
