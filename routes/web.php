@@ -14,5 +14,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    View::addExtension('html', 'php');
+    return View::make('index');
 });
+Route::fallback(function () {
+    View::addExtension('html', 'php');
+    return View::make('index');
+});
+
