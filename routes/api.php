@@ -68,6 +68,7 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('users/{user}', 'AdminController@getUserInfo');
         Route::put('users/{user}', 'AdminController@updateUserInfo');
 
+        Route::resource('stores/{store}/branches', 'AdminBranchController');
         Route::get('stores/{store}/items', 'AdminController@getStoreItems');
         Route::get('stores/{store}/upload-history', 'AdminController@getStoreUploadHistory');
 
