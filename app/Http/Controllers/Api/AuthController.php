@@ -118,7 +118,7 @@ class AuthController extends Controller
         DB::beginTransaction();
 
         $user->update($userMappedRequest);
-        $userInfoMappedRequest = $request->only('lng', 'lat', 'bio', 'delivery_details', 'mobile1', 'mobile2');
+        $userInfoMappedRequest = $request->only('bio', 'delivery_details', 'mobile1', 'mobile2');
 
         if(empty($userInfoMappedRequest))
             return $this->handleResponse(1, new UserBasicInfoResource($user));
