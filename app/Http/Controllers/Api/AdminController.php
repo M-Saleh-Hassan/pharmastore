@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\PharmacySearchItemResource;
 use App\Http\Resources\Admin\StoreOrderResource as AdminStoreOrderResource;
+use App\Http\Resources\ItemResource;
 use App\Http\Resources\SearchItemResource;
 use App\Http\Resources\StoreOrderResource;
 use App\Http\Resources\StoreUploadHistoryResource;
@@ -51,33 +52,10 @@ class AdminController extends Controller
         return $this->handleResponse(1, new UserBasicInfoResource($user));
     }
 
-    public function updateUserInfo(Request $request, User $user)
+    public function deleteUser(Request $request, User $user)
     {
-        $this->validation($request, [
-            'username' => 'unique:users,username,' . $user->id,
-            'email' => 'unique:users,email,' . $user->id
-        ]);
-
-        $userMappedRequest = $request->only('name', 'username', 'password', 'email');
-        if($request->has('password'))
-            $userMappedRequest['password'] = Hash::make($request->password);
-
-        DB::beginTransaction();
-
-        $user->update($userMappedRequest);
-        $userInfoMappedRequest = $request->only('lng', 'lat', 'bio', 'delivery_details', 'mobile1', 'mobile2');
-
-        if(empty($userInfoMappedRequest))
-            return $this->handleResponse(1, new UserBasicInfoResource($user));
-
-        $userInfoMappedRequest['user_id'] = $user->id;
-        $userInfo = UserInfo::updateOrCreate(
-            ['user_id' => $user->id],
-            $userInfoMappedRequest
-        );
-
-        DB::commit();
-        return $this->handleResponse(1, new UserBasicInfoResource($user));
+        $user->delete();
+        return $this->handleResponse(1, ['message' => 'User is deleted successfully.']);
     }
 
     public function getAllOrders(Request $request)
@@ -197,6 +175,37 @@ class AdminController extends Controller
         $searchHistory = SearchHistory::where('user_id', $pharmacy->id)->paginate($limit);
 
         return $this->handlePaginateResponse(1, PharmacySearchItemResource::collection($searchHistory));
+    }
+
+    public function getTop100Items(Request $request)
+    {
+        $this->validation($request, [
+            'order_by' => 'required|in:search,discount',
+            'order_type' => 'in:asc,desc'
+        ], [
+            'order_by.in' => 'order_by must have value of search or discount.',
+            'order_by.in' => 'order_by must have value of asc or desc.'
+        ]);
+
+        $orderType = ($request->has('order_type')) ? $request->order_type : 'DESC';
+        $items = [];
+
+        if($request->order_by == 'discount')
+            $items = Item::orderBy('discount', $orderType)->limit(100)->get();
+
+        if($request->order_by == 'search') {
+            $history = SearchHistoryResult::select(DB::raw("COUNT('item_id') AS item_count, item_id"))
+                ->has('item')
+                ->groupBy('item_id')
+                ->orderByDesc('item_count')
+                ->limit(100)
+                ->pluck('item_id');
+            foreach ($history as $itemId) {
+                $items[] = Item::find($itemId);
+            }
+        }
+
+        return $this->handleResponse(1, ItemResource::collection($items));
     }
 
 }

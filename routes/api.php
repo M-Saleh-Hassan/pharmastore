@@ -67,6 +67,7 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('users', 'AdminController@getAllUsers');
         Route::get('users/{user}', 'AdminController@getUserInfo');
         Route::put('users/{user}', 'AdminController@updateUserInfo');
+        Route::delete('users/{user}', 'AdminController@deleteUser');
 
         Route::resource('stores/{store}/branches', 'AdminBranchController');
         Route::get('stores/{store}/items', 'AdminController@getStoreItems');
@@ -79,6 +80,8 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('orders/{order}', 'OrderController@show');
 
         Route::get('search/history', 'AdminController@getSearchHistory');
+
+        Route::get('items/top100', 'AdminController@getTop100Items');
     });
 
 });
