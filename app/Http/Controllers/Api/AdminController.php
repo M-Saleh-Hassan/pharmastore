@@ -52,6 +52,35 @@ class AdminController extends Controller
         return $this->handleResponse(1, new UserBasicInfoResource($user));
     }
 
+    public function updateUserInfo(Request $request, User $user)
+    {
+        $this->validation($request, [
+            'username' => 'unique:users,username,' . $user->id,
+            'email' => 'unique:users,email,' . $user->id
+        ]);
+
+        $userMappedRequest = $request->only('name', 'username', 'password', 'email');
+        if($request->has('password'))
+            $userMappedRequest['password'] = Hash::make($request->password);
+
+        DB::beginTransaction();
+
+        $user->update($userMappedRequest);
+        $userInfoMappedRequest = $request->only('lng', 'lat', 'bio', 'delivery_details', 'mobile1', 'mobile2');
+
+        if(empty($userInfoMappedRequest))
+            return $this->handleResponse(1, new UserBasicInfoResource($user));
+
+        $userInfoMappedRequest['user_id'] = $user->id;
+        $userInfo = UserInfo::updateOrCreate(
+            ['user_id' => $user->id],
+            $userInfoMappedRequest
+        );
+
+        DB::commit();
+        return $this->handleResponse(1, new UserBasicInfoResource($user));
+    }
+    
     public function deleteUser(Request $request, User $user)
     {
         $user->delete();
