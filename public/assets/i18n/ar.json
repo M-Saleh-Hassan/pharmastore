@@ -83,5 +83,10 @@
     "Cart is cancelled": "تم إلغاء العربة",
     "Cart is empty": "العربة فارغة",
     "cart Item was removed": "حذفت السلعة من العربة",
-    "Cart item was modified": "عدلت السلعة من العربة"
+    "Cart item was modified": "عدلت السلعة من العربة",
+    "Edit Branches": "عدل الفروع",
+    "Created Successfully" : "انشئ بنجاح",
+    "Updated Successfully" : "عدل بنجاح",
+    "Deleted Successfully" : "حذف بنجاح",
+    "Orders History": "تاريخ الطلبات"
 }
