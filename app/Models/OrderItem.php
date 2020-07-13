@@ -32,8 +32,6 @@ class OrderItem extends Model
     {
         if(empty($this->item()->withTrashed()->first()))
             throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'order_item of '.$this->id.' not found.']], 401));
-        if(empty($this->item()->withTrashed()->first()->branch->store))
-            dd($this->item()->withTrashed()->first()->branch);
-        return $this->item()->withTrashed()->first()->branch->store->id;
+        return $this->item()->withTrashed()->first()->branch->store_id;
     }
 }
