@@ -77,7 +77,7 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('pharmacies/{pharmacy}/history', 'AdminController@getPharmacyHistory');
 
         Route::get('orders', 'AdminController@getAllOrders');
-        Route::get('orders/{order}', 'OrderController@show');
+        Route::get('orders/{order}', 'AdminController@showOrder');
 
         Route::get('search/history', 'AdminController@getSearchHistory');
 

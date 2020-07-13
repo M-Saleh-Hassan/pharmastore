@@ -108,7 +108,13 @@ class AdminController extends Controller
             $order->storeItems = $order->items()->whereIn('item_id', $itemsIds)->get();
         }
 
-        return $this->handlePaginateResponse(1, StoreOrderResource::collection($orders));
+        return $this->handlePaginateResponse(1, AdminStoreOrderResource::collection($orders));
+    }
+
+    public function showOrder(Request $request, Order $order)
+    {
+        $order->storeItems = $order->items;
+        return $this->handleResponse(1, new AdminStoreOrderResource($order));
     }
 
     public function getSearchHistory(Request $request)

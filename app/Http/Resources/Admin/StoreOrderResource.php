@@ -24,7 +24,7 @@ class StoreOrderResource extends JsonResource
                 $storeIds[] = $item->store_id;
 
         foreach ($storeIds as $storeId) {
-            $storeName = User::find($storeId)->name;
+            $storeName = User::withTrashed()->find($storeId)->name;
             $filteredCollection = app()->make('stdClass');
             $filteredCollection->store_id = $storeId;
             $filteredCollection->store_name = $storeName;
