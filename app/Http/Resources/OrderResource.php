@@ -22,7 +22,7 @@ class OrderResource extends JsonResource
             foreach ($items as $item)
                 if(!in_array($item->store_id, $storeIds))
                     $storeIds[] = $item->store_id;
-            dd('');
+
             foreach ($storeIds as $storeId) {
                 $storeName = User::find($storeId)->name;
                 $filteredCollection = app()->make('stdClass');
