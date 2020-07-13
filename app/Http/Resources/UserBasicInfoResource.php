@@ -21,7 +21,8 @@ class UserBasicInfoResource extends JsonResource
             'delivery_details' => isset($this->info) ? $this->info->delivery_details : null,
             'mobile1'          => isset($this->info) ? $this->info->mobile1 : null,
             'mobile2'          => isset($this->info) ? $this->info->mobile2 : null,
-            'branches'         => BranchResource::collection($this->branches)
+            'branches'         => BranchResource::collection($this->branches),
+            'is_blocked'       => $this->is_blocked
         ];
     }
 }
