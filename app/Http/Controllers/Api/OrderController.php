@@ -8,6 +8,7 @@ use App\Http\Resources\OrderResource;
 use App\Http\Resources\StoreOrderCollection;
 use App\Http\Resources\StoreOrderResource;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
