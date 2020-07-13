@@ -35,6 +35,8 @@ class AuthController extends Controller
             if (! $token = auth()->attempt($credentials))
                 return $this->handleResponse(0, ['message' => 'Unauthorized']);
         }
+        if(auth()->user()->is_blocked)
+            return $this->handleResponse(0, ['message' => 'user is blcoked by admin']);
 
         return $this->handleResponse(1, new LoginResource(auth()->user(), $token));
     }

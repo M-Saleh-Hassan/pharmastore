@@ -82,10 +82,18 @@ class AdminController extends Controller
         return $this->handleResponse(1, new UserBasicInfoResource($user));
     }
 
-    public function deleteUser(Request $request, User $user)
+    public function blockUser(Request $request, User $user)
     {
-        $user->delete();
-        return $this->handleResponse(1, ['message' => 'User is deleted successfully.']);
+        $user->is_blocked = 1;
+        $user->save();
+        return $this->handleResponse(1, ['message' => 'User is blocked successfully.']);
+    }
+
+    public function unblockUser(Request $request, User $user)
+    {
+        $user->is_blocked = 0;
+        $user->save();
+        return $this->handleResponse(1, ['message' => 'User is unblocked successfully.']);
     }
 
     public function getAllOrders(Request $request)

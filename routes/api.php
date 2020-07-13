@@ -67,7 +67,8 @@ Route::group(['namespace' => 'Api'], function () {
         Route::get('users', 'AdminController@getAllUsers');
         Route::get('users/{user}', 'AdminController@getUserInfo');
         Route::put('users/{user}', 'AdminController@updateUserInfo');
-        Route::delete('users/{user}', 'AdminController@deleteUser');
+        Route::post('users/{user}/block', 'AdminController@blockUser');
+        Route::post('users/{user}/unblock', 'AdminController@unblockUser');
 
         Route::resource('stores/{store}/branches', 'AdminBranchController');
         Route::get('stores/{store}/items', 'AdminController@getStoreItems');
