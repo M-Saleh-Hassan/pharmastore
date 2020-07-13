@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\PharmacySearchItemResource;
 use App\Http\Resources\Admin\StoreOrderResource as AdminStoreOrderResource;
 use App\Http\Resources\ItemResource;
+use App\Http\Resources\Order\OrderBasicResource;
 use App\Http\Resources\SearchItemResource;
 use App\Http\Resources\StoreOrderResource;
 use App\Http\Resources\StoreUploadHistoryResource;
@@ -80,7 +81,7 @@ class AdminController extends Controller
         DB::commit();
         return $this->handleResponse(1, new UserBasicInfoResource($user));
     }
-    
+
     public function deleteUser(Request $request, User $user)
     {
         $user->delete();
@@ -191,7 +192,7 @@ class AdminController extends Controller
             $order->storeItems = $order->items;
         }
 
-        return $this->handlePaginateResponse(1, AdminStoreOrderResource::collection($orders));
+        return $this->handlePaginateResponse(1, OrderBasicResource::collection($orders));
     }
 
     public function getPharmacyHistory(Request $request, User $pharmacy)

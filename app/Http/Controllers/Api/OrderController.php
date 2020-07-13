@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Order\OrderBasicResource;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\StoreOrderCollection;
 use App\Http\Resources\StoreOrderResource;
@@ -25,7 +26,7 @@ class OrderController extends Controller
         $search = ($request->has('search')) ? $request->search : '';
         $orderType = ($request->has('order_type')) ? $request->order_type : 'ASC';
 
-        return $this->handlePaginateResponse(1, OrderResource::collection(auth()->user()->orders()->notCancelled()->latest()->paginate($limit)));
+        return $this->handlePaginateResponse(1, OrderBasicResource::collection(auth()->user()->orders()->notCancelled()->latest()->paginate($limit)));
     }
 
     public function show(Request $request, Order $order)

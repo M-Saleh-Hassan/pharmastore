@@ -36,6 +36,7 @@ class StoreOrderResource extends JsonResource
         return [
             'id' => $this->id,
             'items' => OrderStoreItemResource::collection($filteredItemsPerStore),
+            'created_at' => $this->created_at,
             'cancelled' => $this->is_cancelled
         ];
     }
