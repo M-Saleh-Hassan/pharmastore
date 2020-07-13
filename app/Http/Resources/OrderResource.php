@@ -24,6 +24,7 @@ class OrderResource extends JsonResource
                     $storeIds[] = $item->store_id;
 
             foreach ($storeIds as $storeId) {
+                dd(User::find(18));
                 $storeName = User::find($storeId)->name;
                 $filteredCollection = app()->make('stdClass');
                 $filteredCollection->store_id = $storeId;
