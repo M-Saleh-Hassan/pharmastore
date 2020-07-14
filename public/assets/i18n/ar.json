@@ -88,5 +88,9 @@
     "Created Successfully" : "انشئ بنجاح",
     "Updated Successfully" : "عدل بنجاح",
     "Deleted Successfully" : "حذف بنجاح",
-    "Orders History": "تاريخ الطلبات"
+    "Orders History": "تاريخ الطلبات",
+    "Block": "حظر",
+    "Unblock": "إلغاء الحظر",
+    "Blocked": "المحظورون",
+    "All": "الجميع"
 }
