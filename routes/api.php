@@ -21,8 +21,6 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('login', 'AuthController@login');
     Route::post('logout', 'AuthController@logout');
     Route::put('profile/update', 'AuthController@update');
-    // Route::post('refresh', 'AuthController@refresh');
-    // Route::post('me', 'AuthController@me');
 
     Route::group(['prefix' => 'pharmacy'], function () {
         Route::post('register', 'AuthController@registerPharmcay');

@@ -181,13 +181,12 @@ class ItemController extends Controller
                 $items = $items->where('areas.id', $request->area_id);
             $items = $items->paginate($limit);
 
-            $search = substr($search, 0, -1);
+            $search = mb_substr($search, 0, -1);
             if($items->total() > 0)
                 break;
         } while (!empty($search));
-
+        
         $items->count = $items->total();
-
         if($items->count)
             event(new ItemSearched($items, $search, auth()->user()->id));
 
