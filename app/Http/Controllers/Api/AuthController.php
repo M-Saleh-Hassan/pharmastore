@@ -7,16 +7,19 @@ use App\Http\Resources\LoginResource;
 use App\Http\Resources\UserBasicInfoResource;
 use App\Models\User;
 use App\Models\UserInfo;
+use App\Notifications\ForgetPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
 
     public function __construct()
     {
-        $this->middleware('auth-token', ['except' => ['login', 'registerPharmcay', 'registerStore']]);
+        $this->middleware('auth-token', ['except' => ['login', 'registerPharmcay', 'registerStore', 'forgetPassword', 'resetPassword']]);
         $this->middleware('auth-role:admin', ['only' => ['registerPharmcay', 'registerStore']]);
 
     }
@@ -135,17 +138,43 @@ class AuthController extends Controller
         return $this->handleResponse(1, new UserBasicInfoResource($user));
     }
 
-    // public function refresh()
-    // {
-    //     return $this->respondWithToken(auth()->refresh());
-    // }
+    public function forgetPassword(Request $request)
+    {
+        $this->validation($request, [
+            'email' => 'required|exists:users,email'
+        ]);
+        $user = User::where('email', $request->email)->first();
+        $token = Str::random(60).round(microtime(true) * 1000);
+        DB::table('password_resets')->insert([
+            'email' => $request->email,
+            'token' => $token,
+            'created_at' => now()
+        ]);
 
-    // protected function respondWithToken($token)
-    // {
-    //     return response()->json([
-    //         'access_token' => $token,
-    //         'token_type' => 'bearer',
-    //         'expires_in' => auth()->factory()->getTTL() * 60
-    //     ]);
-    // }
+    Notification::send($user, new ForgetPassword($token));
+
+        return $this->handleResponse(1, ['message' => 'Mail has been sent successfully.']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $this->validation($request, [
+            'token' => 'required|exists:password_resets,token',
+            'password' => 'required'
+        ]);
+        DB::beginTransaction();
+
+        $reset = DB::table('password_resets')->where('token', $request->token)->first();
+        $user = User::where('email', $reset->email)->first();
+        if(empty($user))
+            return $this->handleResponse(0, ['message' => 'Invalid Token']);
+        $user->password = Hash::make($request->password);
+        $user->save();
+        DB::table('password_resets')->where('token', $request->token)->delete();
+
+        DB::commit();
+        
+        $token = auth()->login($user);
+        return $this->handleResponse(1, new LoginResource($user, $token));
+    }
 }

@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(['namespace' => 'Api'], function () {
     Route::post('login', 'AuthController@login');
     Route::post('logout', 'AuthController@logout');
+    Route::post('forget-password', 'AuthController@forgetPassword');
+    Route::post('reset-password', 'AuthController@resetPassword');
     Route::put('profile/update', 'AuthController@update');
 
     Route::group(['prefix' => 'pharmacy'], function () {
