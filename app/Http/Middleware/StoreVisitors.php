@@ -16,8 +16,8 @@ class StoreVisitors
      */
     public function handle($request, Closure $next)
     {
-        $ip = trim(shell_exec("dig +short myip.opendns.com @resolver1.opendns.com"));
-        if(empty($ip))
+        // $ip = trim(shell_exec("dig +short myip.opendns.com @resolver1.opendns.com"));
+        // if(empty($ip))
             $ip = $request->ip();
         $visitor = Visitor::firstOrCreate(['ip' => $ip]);
         $visitor->last_visit = now();
