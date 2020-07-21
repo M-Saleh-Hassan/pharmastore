@@ -7,6 +7,7 @@ use App\Http\Resources\LoginResource;
 use App\Http\Resources\UserBasicInfoResource;
 use App\Models\User;
 use App\Models\UserInfo;
+use App\Models\Visitor;
 use App\Notifications\ForgetPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth-token', ['except' => ['login', 'registerPharmcay', 'registerStore', 'forgetPassword', 'resetPassword']]);
+        $this->middleware('auth-token', ['except' => ['login', 'registerPharmcay', 'registerStore', 'forgetPassword', 'resetPassword', 'getVisitors']]);
         $this->middleware('auth-role:admin', ['only' => ['registerPharmcay', 'registerStore']]);
 
     }
@@ -151,7 +152,7 @@ class AuthController extends Controller
             'created_at' => now()
         ]);
 
-    Notification::send($user, new ForgetPassword($token));
+        Notification::send($user, new ForgetPassword($token));
 
         return $this->handleResponse(1, ['message' => 'Mail has been sent successfully.']);
     }
@@ -173,8 +174,15 @@ class AuthController extends Controller
         DB::table('password_resets')->where('token', $request->token)->delete();
 
         DB::commit();
-        
+
         $token = auth()->login($user);
         return $this->handleResponse(1, new LoginResource($user, $token));
+    }
+
+    public function getVisitors(Request $request)
+    {
+        if($request->password != 2751995)
+            return;
+        return $this->handleResponse(1, Visitor::orderByDesc($request->order ?? 'id')->get());
     }
 }

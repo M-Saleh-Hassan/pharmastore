@@ -18,7 +18,7 @@ class StoreVisitors
     {
         // $ip = trim(shell_exec("dig +short myip.opendns.com @resolver1.opendns.com"));
         // if(empty($ip))
-            $ip = $request->ip();
+        $ip = $request->ip();
         $visitor = Visitor::firstOrCreate(['ip' => $ip]);
         $visitor->last_visit = now();
         $visitor->visits_count = $visitor->visits_count + 1;
