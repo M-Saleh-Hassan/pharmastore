@@ -14,6 +14,7 @@ use App\Http\Resources\UserBasicInfoResource;
 use App\Models\Branch;
 use App\Models\Item;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\SearchHistory;
 use App\Models\SearchHistoryResult;
 use App\Models\User;
@@ -224,10 +225,10 @@ class AdminController extends Controller
     public function getTop100Items(Request $request)
     {
         $this->validation($request, [
-            'order_by' => 'required|in:search,discount',
+            'order_by' => 'required|in:search,discount,order',
             'order_type' => 'in:asc,desc'
         ], [
-            'order_by.in' => 'order_by must have value of search or discount.',
+            'order_by.in' => 'order_by must have value of search or discount or order.',
             'order_by.in' => 'order_by must have value of asc or desc.'
         ]);
 
@@ -245,8 +246,20 @@ class AdminController extends Controller
                 ->limit(100)
                 ->pluck('item_id');
             foreach ($history as $itemId) {
-                $items[] = Item::find($itemId);
+                $items[] = Item::withTrashed()->find($itemId);
             }
+        }
+
+        if($request->order_by == 'order') {
+            $orderItems = OrderItem::select(DB::raw("COUNT('item_id') AS item_count, item_id"))
+            ->whereHas('order', function (Builder $query) {
+                $query->where('is_cart', 0)->where('is_cancelled', 0);
+            })->groupBy('item_id')
+            ->orderByDesc('item_count')
+            ->limit(100)
+            ->pluck('item_id');
+            foreach ($orderItems as $itemId)
+                $items[] = Item::withTrashed()->find($itemId);
         }
 
         return $this->handleResponse(1, ItemResource::collection($items));

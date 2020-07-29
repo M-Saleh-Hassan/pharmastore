@@ -9,6 +9,7 @@ use App\Http\Resources\ItemResource;
 use App\Imports\ItemsImport;
 use App\Models\Branch;
 use App\Models\Item;
+use App\Models\OrderItem;
 use App\Models\SearchHistoryResult;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -185,7 +186,7 @@ class ItemController extends Controller
             if($items->total() > 0)
                 break;
         } while (!empty($search));
-        
+
         $items->count = $items->total();
         if($items->count)
             event(new ItemSearched($items, $search, auth()->user()->id));
@@ -196,10 +197,10 @@ class ItemController extends Controller
     public function getTop100(Request $request)
     {
         $this->validation($request, [
-            'order_by' => 'required|in:search,discount',
+            'order_by' => 'required|in:search,discount,order',
             'order_type' => 'in:asc,desc'
         ], [
-            'order_by.in' => 'order_by must have value of search or discount.',
+            'order_by.in' => 'order_by must have value of search or discount or order.',
             'order_by.in' => 'order_by must have value of asc or desc.'
         ]);
 
@@ -217,8 +218,20 @@ class ItemController extends Controller
                 ->limit(100)
                 ->pluck('item_id');
             foreach ($history as $itemId) {
-                $items[] = Item::find($itemId);
+                $items[] = Item::withTrashed()->find($itemId);
             }
+        }
+
+        if($request->order_by == 'order') {
+            $orderItems = OrderItem::select(DB::raw("COUNT('item_id') AS item_count, item_id"))
+            ->whereHas('order', function (Builder $query) {
+                $query->where('is_cart', 0)->where('is_cancelled', 0);
+            })->groupBy('item_id')
+            ->orderByDesc('item_count')
+            ->limit(100)
+            ->pluck('item_id');
+            foreach ($orderItems as $itemId)
+                $items[] = Item::withTrashed()->find($itemId);
         }
 
         return $this->handleResponse(1, ItemResource::collection($items));
