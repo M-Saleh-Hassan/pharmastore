@@ -11,6 +11,7 @@ use App\Models\Branch;
 use App\Models\Item;
 use App\Models\OrderItem;
 use App\Models\SearchHistoryResult;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
@@ -22,8 +23,8 @@ class ItemController extends Controller
     public function __construct()
     {
         $this->middleware('auth-token');
-        $this->middleware('auth-role:store')->except(['search', 'getTop100']);
-        $this->middleware('auth-role:pharmacy')->only(['search', 'getTop100']);
+        $this->middleware('auth-role:store')->except(['search', 'getTop100', 'getItemsTransactions']);
+        $this->middleware('auth-role:pharmacy')->only(['search', 'getTop100', 'getItemsTransactions']);
     }
 
     public function index(Request $request, Branch $branch)
@@ -198,7 +199,10 @@ class ItemController extends Controller
     {
         $this->validation($request, [
             'order_by' => 'required|in:search,discount,order',
-            'order_type' => 'in:asc,desc'
+            'order_type' => 'in:asc,desc',
+            'city_id' => 'exists:cities,id',
+            'area_id' => 'exists:areas,id',
+            'is_followed' => 'in:1'
         ], [
             'order_by.in' => 'order_by must have value of search or discount or order.',
             'order_by.in' => 'order_by must have value of asc or desc.'
@@ -207,13 +211,38 @@ class ItemController extends Controller
         $orderType = ($request->has('order_type')) ? $request->order_type : 'DESC';
         $items = [];
 
+        $followingStoresIds = [];
+        if($request->has('is_followed') && $request->is_followed == 1)
+            $followingStoresIds = auth()->user()->following()->pluck('users.id')->toArray();
+
+
         if($request->order_by == 'discount')
-            $items = Item::orderBy('discount', $orderType)->limit(100)->get();
+            $items = Item::whereHas('branch', function (Builder $branchQuery) use ($request, $followingStoresIds) {
+                    if($request->has('is_followed'))
+                        $branchQuery = $branchQuery->whereIn('store_id', $followingStoresIds);
+                    if($request->has('area_id'))
+                        $branchQuery = $branchQuery->where('area_id', $request->area_id);
+                    if($request->has('city_id'))
+                        $branchQuery = $branchQuery->whereHas('area', function (Builder $areaQuery) use ($request) {
+                            $areaQuery->where('city_id', $request->city_id);
+                        });
+                })
+                ->orderBy('discount', $orderType)->limit(100)->get();
 
         if($request->order_by == 'search') {
             $history = SearchHistoryResult::select(DB::raw("COUNT('item_id') AS item_count, item_id"))
-                ->has('item')
-                ->groupBy('item_id')
+                ->whereHas('item', function (Builder $itemQuery) use ($request, $followingStoresIds) {
+                    $itemQuery->whereHas('branch', function (Builder $branchQuery) use ($request, $followingStoresIds) {
+                        if($request->has('is_followed'))
+                            $branchQuery = $branchQuery->whereIn('store_id', $followingStoresIds);
+                        if($request->has('area_id'))
+                            $branchQuery = $branchQuery->where('area_id', $request->area_id);
+                        if($request->has('city_id'))
+                            $branchQuery = $branchQuery->whereHas('area', function (Builder $areaQuery) use ($request) {
+                                $areaQuery->where('city_id', $request->city_id);
+                            });
+                    });
+                })->groupBy('item_id')
                 ->orderByDesc('item_count')
                 ->limit(100)
                 ->pluck('item_id');
@@ -235,5 +264,28 @@ class ItemController extends Controller
         }
 
         return $this->handleResponse(1, ItemResource::collection($items));
+    }
+
+    public function getItemsTransactions(Request $request)
+    {
+        $item = Item::withTrashed()->find($request->item);
+        $this->validation($request, [
+            'from' => 'required|date',
+            'to' => 'required|date',
+            'pharmacy_id' => 'exists:users,id',
+            'city_id' => 'exists:cities,id',
+            'area_id' => 'exists:areas,id'
+        ]);
+        $from = Carbon::createFromFormat('Y-m-d', $request->from)->toDateTimeString();
+        $to = Carbon::createFromFormat('Y-m-d', $request->to)->toDateTimeString();
+
+        $transaction =  $item->orderItems()->whereBetween('created_at', [$from, $to]);
+        if($request->has('pharmacy_id'))
+            $transaction = $transaction->whereHas('order', function (Builder $orderQuery) use ($request) {
+                $orderQuery->where('user_id', $request->pharmacy_id);
+            });
+        
+        $transactionQuantity = $transaction->sum('quantity');
+        return $this->handleResponse(1, ['quantity' => $transactionQuantity]);
     }
 }

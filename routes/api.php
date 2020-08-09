@@ -37,6 +37,7 @@ Route::group(['namespace' => 'Api'], function () {
 
         Route::post('items/search', 'ItemController@search');
         Route::get('items/top100', 'ItemController@getTop100');
+        Route::get('items/{item}/transactions', 'ItemController@getItemsTransactions');
 
         Route::post('stores/{store}/follow', 'FollowController@follow');
         Route::post('stores/{store}/unfollow', 'FollowController@unfollow');
