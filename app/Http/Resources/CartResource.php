@@ -12,6 +12,8 @@ class CartResource extends JsonResource
         return [
             'store_id' => $this->store_id,
             'store_name' => $this->store_name,
+            'store_email' => $this->store_email,
+            'store_mobile' => $this->store_mobile,
             'items' => CartItemResource::collection($this->items)
         ];
     }
