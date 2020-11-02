@@ -83,7 +83,7 @@ class AdminBranchController extends Controller
 
         if($branch->store_id != $store->id)
             throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'Unauthorized to perform this operation']], 401));
-
+        $branch->items()->delete();
         $branch->delete();
         return $this->handleResponse(1, ['message' => 'Branch is deleted successfully.']);
     }
