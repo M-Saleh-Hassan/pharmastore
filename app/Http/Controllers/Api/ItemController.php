@@ -173,6 +173,7 @@ class ItemController extends Controller
                 ->join('cities', 'cities.id', '=', 'areas.city_id')
                 ->select(DB::raw('items.*, ( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
                 ->orderBy($orderBy, $orderType)
+                ->where('users.is_blocked', 0)
                 ->where(function($query) use ($search){
                     $query->where('items.name_en', 'like', '%'.$search.'%' )
                     ->orWhere('items.name_ar', 'like', '%'.$search.'%');
@@ -284,7 +285,7 @@ class ItemController extends Controller
             $transaction = $transaction->whereHas('order', function (Builder $orderQuery) use ($request) {
                 $orderQuery->where('user_id', $request->pharmacy_id);
             });
-        
+
         $transactionQuantity = $transaction->sum('quantity');
         return $this->handleResponse(1, ['quantity' => $transactionQuantity]);
     }
