@@ -47,6 +47,7 @@ class FollowController extends Controller
             ->join('cities', 'cities.id', '=', 'areas.city_id')
             ->select(DB::raw('users.id, users.name, users.username, MIN( 6367 * acos( cos( radians('.$lat.') ) * cos( radians( branches.lat ) ) * cos( radians( branches.lng ) - radians('.$lng.') ) + sin( radians('.$lat.') ) * sin( radians( branches.lat ) ) ) ) AS distance'))
             ->orderBy($orderBy, $orderType)
+            ->where('users.is_blocked', 0)
             ->whereHas('roles', function (Builder $query) {
                 $query->where('roles.name', 'store');
             })->where(function($query) use ($search){
