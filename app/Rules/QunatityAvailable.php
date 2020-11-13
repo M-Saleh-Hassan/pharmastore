@@ -15,7 +15,7 @@ class QunatityAvailable implements Rule
      */
     public function __construct($item_id)
     {
-        $this->quantity = Item::findOrFail($item_id)->quantity;
+        $this->quantity = Item::withTrashed()->findOrFail($item_id)->quantity;
     }
 
     /**
