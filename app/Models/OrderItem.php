@@ -30,8 +30,12 @@ class OrderItem extends Model
 
     public function getStoreIdAttribute()
     {
-        if(empty($this->item()->withTrashed()->first()))
+        $item = $this->item()->withTrashed()->first();
+        if(empty($item))
             throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'order_item of '.$this->id.' not found.']], 401));
-        return $this->item()->withTrashed()->first()->branch->store_id;
+        $branch = $item->branch()->withTrashed()->first();
+        if(empty($branch))
+            throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'branch id not found.']], 401));
+        return $branch->store_id;
     }
 }
