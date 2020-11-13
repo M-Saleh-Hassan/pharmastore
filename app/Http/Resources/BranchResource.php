@@ -25,7 +25,7 @@ class BranchResource extends JsonResource
             'working_days_from' => $this->working_days_from,
             'working_days_to' => $this->working_days_to,
             'area' => new AreaResource($this->area),
-            'items' => $this->items
+            'items' => $this->items()->take(15)->get()
         ];
     }
 }
