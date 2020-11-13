@@ -55,6 +55,16 @@ class Handler extends ExceptionHandler
         {
             return response()->json(['success'=> 0, 'data' => ['message' => 'The object you are trying to access by id not found.']], 404);
         }
-        return parent::render($request, $exception);
+        return response()->json([
+            'status'=>0,
+            'errors' => [
+                'message'   => $exception->getMessage(),
+                'exception' => get_class($exception),
+                'file'      => $exception->getFile(),
+                'line'      => $exception->getLine(),
+                // 'trace'     => $e->getTrace()
+            ]
+        ],500);
+        // return parent::render($request, $exception);
     }
 }
