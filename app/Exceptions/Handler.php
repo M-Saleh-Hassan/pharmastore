@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -53,7 +54,23 @@ class Handler extends ExceptionHandler
     {
         if( $exception instanceof ModelNotFoundException)
         {
-            return response()->json(['success'=> 0, 'data' => ['message' => 'The object you are trying to access by id not found.']], 404);
+            return response()->json(['status'=> 0, 'data' => ['message' => 'The object you are trying to access by id not found.']], 404);
+        }
+        elseif ($exception instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException)
+        {
+            return response()->json(['status'=> 0, 'data' => ['message' => $exception->getMessage()]], 441);
+        }
+        elseif ($exception instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException)
+        {
+            return response()->json(['status'=> 0, 'data' => ['message' => $exception->getMessage()]], 442);
+        }
+        elseif ($exception instanceof \Tymon\JWTAuth\Exceptions\JWTException)
+        {
+            return response()->json(['status'=> 0, 'data' => ['message' => $exception->getMessage()]], 401);
+        }
+        elseif ($exception instanceof HttpResponseException)
+        {
+            return parent::render($request, $exception);
         }
         return response()->json([
             'status'=>0,
