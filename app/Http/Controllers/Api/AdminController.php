@@ -58,10 +58,11 @@ class AdminController extends Controller
     {
         $this->validation($request, [
             'username' => 'unique:users,username,' . $user->id,
-            'email' => 'unique:users,email,' . $user->id
+            'email' => 'unique:users,email,' . $user->id,
+            'area_id' => 'exists:areas,id'
         ]);
 
-        $userMappedRequest = $request->only('name', 'username', 'password', 'email');
+        $userMappedRequest = $request->only('name', 'username', 'password', 'email', 'area_id', 'address');
         if($request->has('password'))
             $userMappedRequest['password'] = Hash::make($request->password);
 
