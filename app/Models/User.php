@@ -16,7 +16,7 @@ class User extends Authenticatable implements JWTSubject
     SoftDeletes;
 
     protected $fillable = [
-        'name','username', 'email', 'password',
+        'name','username', 'email', 'password', 'area_id'
     ];
 
     protected $hidden = [
@@ -76,6 +76,11 @@ class User extends Authenticatable implements JWTSubject
     public function info()
     {
         return $this->hasOne(UserInfo::class, 'user_id');
+    }
+
+    public function area()
+    {
+        return $this->belongsTo(Area::class, 'area_id');
     }
 
     public function orders()

@@ -22,7 +22,8 @@ class UserBasicInfoResource extends JsonResource
             'mobile1'          => isset($this->info) ? $this->info->mobile1 : null,
             'mobile2'          => isset($this->info) ? $this->info->mobile2 : null,
             'branches'         => BranchResource::collection($this->branches),
-            'is_blocked'       => $this->is_blocked
+            'is_blocked'       => $this->is_blocked,
+            'area'             => $this->when(isset($this->area), new AreaResource($this->area))
         ];
     }
 }

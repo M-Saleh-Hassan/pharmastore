@@ -20,7 +20,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth-token', ['except' => ['login', 'registerPharmcay', 'registerStore', 'forgetPassword', 'resetPassword', 'getVisitors']]);
+        $this->middleware('auth-token', ['except' => ['login', 'forgetPassword', 'resetPassword', 'getVisitors']]);
         $this->middleware('auth-role:admin', ['only' => ['registerPharmcay', 'registerStore']]);
 
     }
@@ -61,10 +61,11 @@ class AuthController extends Controller
             'email' => 'required|unique:users',
             'lng' => 'required',
             'lat' => 'required',
-            'mobile1' => 'required'
+            'mobile1' => 'required',
+            'area_id' => 'exists:areas,id',
         ]);
 
-        $userMappedRequest = $request->only('name', 'username', 'password', 'email');
+        $userMappedRequest = $request->only('name', 'username', 'password', 'email', 'area_id');
         $userInfoMAppedRequest = $request->only('lng', 'lat', 'mobile1', 'mobile2');
         $userMappedRequest['password'] = Hash::make($request->password);
 
@@ -115,7 +116,8 @@ class AuthController extends Controller
         $user = auth()->user();
         $this->validation($request, [
             'username' => 'unique:users,username,' . $user->id,
-            'email' => 'unique:users,email,' . $user->id
+            'email' => 'unique:users,email,' . $user->id,
+            'area_id' => 'exists:areas,id'
         ]);
         $userMappedRequest = $request->only('name', 'username', 'password', 'email');
         if($request->has('password'))
