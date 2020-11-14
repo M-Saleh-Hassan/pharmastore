@@ -65,7 +65,7 @@ class AuthController extends Controller
             'area_id' => 'exists:areas,id',
         ]);
 
-        $userMappedRequest = $request->only('name', 'username', 'password', 'email', 'area_id');
+        $userMappedRequest = $request->only('name', 'username', 'password', 'email', 'area_id', 'address');
         $userInfoMAppedRequest = $request->only('lng', 'lat', 'mobile1', 'mobile2');
         $userMappedRequest['password'] = Hash::make($request->password);
 

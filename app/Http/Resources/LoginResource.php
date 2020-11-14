@@ -32,7 +32,8 @@ class LoginResource extends JsonResource
             'delivery_details' => isset($this->info) ? $this->info->delivery_details : null,
             'mobile1'          => isset($this->info) ? $this->info->mobile1 : null,
             'mobile2'          => isset($this->info) ? $this->info->mobile2 : null,
-            'area'             => $this->when(isset($this->area), new AreaResource($this->area))
+            'area'             => $this->when(isset($this->area), new AreaResource($this->area)),
+            'address'          => $this->when(is_null($this->address), $this->address)
         ];
     }
 }
