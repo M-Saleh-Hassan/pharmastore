@@ -25,6 +25,9 @@ Route::group(['namespace' => 'Api'], function () {
     Route::put('profile/update', 'AuthController@update');
     Route::post('visitors', 'AuthController@getVisitors');
 
+    Route::get('cities', 'CityController@index');
+    Route::get('cities/{city}/areas', 'CityController@getCityAreas');
+
     Route::group(['prefix' => 'pharmacy'], function () {
         Route::post('register', 'AuthController@registerPharmcay');
 
