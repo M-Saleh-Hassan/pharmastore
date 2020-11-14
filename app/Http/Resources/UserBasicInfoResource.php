@@ -24,7 +24,7 @@ class UserBasicInfoResource extends JsonResource
             'branches'         => BranchResource::collection($this->branches),
             'is_blocked'       => $this->is_blocked,
             'area'             => $this->when(isset($this->area), new AreaResource($this->area)),
-            'address'          => $this->when(is_null($this->address), $this->address)
+            'address'          => $this->when($this->address, $this->address)
         ];
     }
 }
