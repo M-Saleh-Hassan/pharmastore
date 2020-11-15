@@ -132,6 +132,13 @@ class User extends Authenticatable implements JWTSubject
         return false;
     }
 
+    public function isAdmin()
+    {
+        if($this->roles()->where('name', 'admin')->first())
+            return true;
+        return false;
+    }
+
     public function isFollowing($storeId)
     {
         if($this->following()->where('follower_id', $storeId)->first())
