@@ -105,7 +105,7 @@ class ItemController extends Controller
 
     public function upload(Request $request,Branch $branch)
     {
-        if(auth()->user()->isAdmin() || $branch->store_id != auth()->user()->id)
+        if(!auth()->user()->isAdmin() && $branch->store_id != auth()->user()->id)
             throw new HttpResponseException(response()->json(['success'=> 0, 'data' => ['message' => 'Unauthorized to perform this operation']], 401));
 
         $this->validation($request, [
